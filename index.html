@@ -1,49 +1,158 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Staff Complaints & Safety Deficiencies</title>
+<title>Safety Console</title>
+<meta name="theme-color" content="#0a0d12">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap">
 <style>
-:root{--bg:#f3f5f8;--card:#fff;--ink:#1c2430;--mut:#667085;--line:#e2e6ec;--pri:#0b5cab;--crit:#b42318;--high:#d9480f;--med:#b7791f;--low:#2f855a;--ok:#2f855a}
-*{box-sizing:border-box}body{margin:0;font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:78px}
-header{background:var(--pri);color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5}
-header b{font-size:15px}header small{opacity:.85;display:block;font-size:11px}
-main{padding:12px;max-width:900px;margin:auto}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
-h2{font-size:17px;margin:4px 0 10px}h3{font-size:14px;margin:0 0 8px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
-label{display:block;font-size:12px;color:var(--mut);margin:8px 0 3px;font-weight:600}
-input,select,textarea{width:100%;padding:10px;border:1px solid #c9d0da;border-radius:8px;font:inherit;background:#fff}
-textarea{min-height:84px}
-button,.btn{background:var(--pri);color:#fff;border:0;border-radius:8px;padding:10px 14px;font:inherit;font-weight:600;cursor:pointer}
-button.sec{background:#e7ecf3;color:var(--ink)}button.dan{background:var(--crit)}button.sm{padding:5px 10px;font-size:13px}
-button:disabled{opacity:.5}
+:root{color-scheme:dark;--bg:#0a0d12;--ink:#e8edf4;--mut:#8b97a8;--line:rgba(255,255,255,.085);--line2:rgba(255,255,255,.15);--pri:#5cc8ff;--crit:#ff5a5f;--high:#ff8a3d;--med:#f0b429;--low:#3ddc97;--ok:#3ddc97;--r:18px;
+--fd:'Sora',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;--fb:'Manrope',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:#0a0d12}
+body{margin:0;font:15px/1.5 var(--fb);color:var(--ink);min-height:100vh;padding-bottom:108px;
+ background:radial-gradient(1100px 620px at 92% -16%,rgba(92,200,255,.14),transparent 60%),radial-gradient(820px 620px at -16% 108%,rgba(125,100,255,.10),transparent 60%),linear-gradient(180deg,#0c1016,#07090d);background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;background:repeating-linear-gradient(90deg,rgba(255,255,255,.024) 0 1px,transparent 1px 4px);-webkit-mask-image:linear-gradient(180deg,#000,transparent 70%);mask-image:linear-gradient(180deg,#000,transparent 70%)}
+#app,#modal{position:relative;z-index:1}
+a{color:var(--pri)}
+/* header */
+header{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 16px;background:linear-gradient(180deg,rgba(26,33,44,.86),rgba(13,17,23,.78));border-bottom:1px solid var(--line);box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 10px 28px rgba(0,0,0,.4)}
+@supports (backdrop-filter:blur(1px)){header{backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3)}}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}.brand svg{flex:none;filter:drop-shadow(0 0 8px rgba(92,200,255,.5))}
+.brand b{font:600 15px var(--fd);letter-spacing:.01em;display:block;white-space:nowrap}
+.brand small{display:block;color:var(--mut);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:48vw}
+.sync{font-size:12px;color:var(--mut);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.sync::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--mut)}
+.sync.ok::before{background:var(--low);box-shadow:0 0 10px var(--low)}.sync.busy::before{background:var(--pri);box-shadow:0 0 10px var(--pri);animation:pulse 1s infinite}.sync.err::before{background:var(--crit);box-shadow:0 0 10px var(--crit)}
+main{padding:18px 16px;max-width:1160px;margin:0 auto}
+h2{font:600 24px/1.2 var(--fd);letter-spacing:-.015em;margin:4px 0 16px}
+h3{font:600 13px var(--fb);letter-spacing:.015em;color:var(--mut);margin:0 0 10px}
+/* glass cards */
+.card{background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.028));border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 14px 34px -14px rgba(0,0,0,.7)}
+@supports (backdrop-filter:blur(1px)){.card{backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}}
+label{display:block;font-size:12.5px;color:var(--mut);margin:13px 0 5px;font-weight:600}
+input,select,textarea{width:100%;padding:12px 13px;border:1px solid var(--line2);border-radius:12px;font:inherit;color:var(--ink);background:rgba(7,10,15,.6);transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:rgba(92,200,255,.75);box-shadow:0 0 0 3px rgba(92,200,255,.18)}
+input::placeholder,textarea::placeholder{color:#5b6677}textarea{min-height:88px;resize:vertical}select option{background:#151b24;color:var(--ink)}
+input[type=checkbox]{width:auto}fieldset{border:0;padding:0;margin:0;min-width:0}fieldset:disabled{opacity:.72}
+/* buttons: brushed metal with a cool glass tint */
+button,.btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 16px;border:1px solid rgba(255,255,255,.38);border-radius:12px;font:600 14px var(--fb);cursor:pointer;color:#05141d;text-decoration:none;background:linear-gradient(180deg,#b4e7ff 0%,#5cc8ff 46%,#2c9fdc 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.75),0 8px 20px -8px rgba(92,200,255,.6);transition:transform .12s,filter .2s,box-shadow .2s}
+button::after,.btn::after{content:"";position:absolute;top:0;left:-70%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-20deg);transition:left .6s ease;pointer-events:none}
+@media (hover:hover){button:hover:not(:disabled)::after,.btn:hover::after{left:140%}button:hover:not(:disabled),.btn:hover{filter:brightness(1.07)}}
+button:active:not(:disabled){transform:translateY(1px) scale(.992)}
+button.sec{color:var(--ink);background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.05));border-color:var(--line2);box-shadow:inset 0 1px 0 rgba(255,255,255,.14)}
+button.dan,button.critical{color:#fff;background:linear-gradient(180deg,#ff8e92,#e5383b 54%,#b3262a);border-color:rgba(255,255,255,.32);box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 8px 20px -8px rgba(255,90,95,.65)}
+button.high{color:#1d0c00;background:linear-gradient(180deg,#ffc08f,#ff8a3d 55%,#d9631a)}button.medium{color:#1f1600;background:linear-gradient(180deg,#ffe08a,#f0b429 55%,#c18a0c)}button.low{color:#04170d;background:linear-gradient(180deg,#a6f2cf,#3ddc97 55%,#22a874)}
+button.sm{min-height:36px;padding:5px 13px;font-size:13px;border-radius:10px}button:disabled{opacity:.45;cursor:not-allowed}
+:focus-visible{outline:2px solid #9fe0ff;outline-offset:2px}
 .row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1;min-width:130px}
-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:6}
-nav button{flex:1;background:none;color:var(--mut);border-radius:0;padding:8px 2px;font-size:11px;font-weight:600}
-nav button.on{color:var(--pri)}nav span{display:block;font-size:20px}
-.badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700;color:#fff}
-.critical{background:var(--crit)}.high{background:var(--high)}.medium{background:var(--med)}.low{background:var(--low)}.gray{background:#667085}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:8px}
-.cat{border:2px solid var(--line);border-radius:10px;padding:8px 4px;text-align:center;background:#fff;font-size:11px;font-weight:600;cursor:pointer}
-.cat.on{border-color:var(--pri);background:#e8f1fb}.cat i{display:block;font-size:24px;font-style:normal}
-.kpi{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
-.kpi div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px;cursor:pointer}
-.kpi b{font-size:24px;display:block}.kpi small{color:var(--mut)}.kpi .r b{color:var(--crit)}
-.bar{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:13px}.bar span:first-child{width:46%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bar i{display:block;height:12px;background:var(--pri);border-radius:6px;min-width:3px}.bar em{font-style:normal;color:var(--mut)}
-.alert{background:#fff1f0;border:2px solid var(--crit);color:#7a1109;border-radius:10px;padding:12px;margin:8px 0;font-weight:600}
-.warn{background:#fffaeb;border:1px solid #f0c36d;border-radius:10px;padding:10px;margin:8px 0;font-size:13px}
-.info{background:#eef6ff;border:1px solid #b9d7f5;border-radius:10px;padding:10px;margin:8px 0;font-size:13px}
-.item{border-bottom:1px solid var(--line);padding:10px 0;cursor:pointer}.item:last-child{border:0}
-.mut{color:var(--mut);font-size:12px}.hist{border-left:3px solid var(--line);padding-left:10px;margin:0 0 10px}
-table{border-collapse:collapse;width:100%;font-size:12px}th,td{border:1px solid var(--line);padding:5px;text-align:left;vertical-align:top}th{background:#f0f3f7}
-.scroll{overflow-x:auto}
-#modal .ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20;display:flex;align-items:flex-end;justify-content:center}
-#modal .box{background:#fff;width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:14px}
-details summary{cursor:pointer;font-weight:600;color:var(--pri);padding:6px 0}
-img.th{max-width:100%;max-height:200px;border-radius:8px;border:1px solid var(--line)}
-@media print{header,nav,.noprint,button{display:none!important}body{background:#fff;padding:0}.card{border:0;padding:0}}
+.mut{color:var(--mut);font-size:12.5px}.scroll{overflow-x:auto}
+/* badges */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;color:#fff;letter-spacing:.02em;border:1px solid rgba(255,255,255,.28);white-space:nowrap}
+.critical{background:linear-gradient(180deg,#ff7a7e,#d92f34)}.high{background:linear-gradient(180deg,#ff9d5c,#e0701f)}.medium{background:linear-gradient(180deg,#f6c94f,#c18a0c)}.low{background:linear-gradient(180deg,#58e2a6,#22a874)}.gray{background:linear-gradient(180deg,#7d8998,#566171)}
+.badge.medium,.badge.low,.badge.high{color:#10130f}
+.badge.critical{box-shadow:0 0 14px rgba(255,90,95,.55)}
+/* alerts */
+.alert{background:linear-gradient(180deg,rgba(255,90,95,.22),rgba(255,90,95,.1));border:1px solid rgba(255,90,95,.62);color:#ffe4e5;border-radius:14px;padding:14px;margin:10px 0;font-weight:600;box-shadow:0 0 34px -10px rgba(255,90,95,.6)}
+.alert a{color:#fff}
+.warn{background:rgba(240,180,41,.1);border:1px solid rgba(240,180,41,.42);color:#ffe9b0;border-radius:14px;padding:12px;margin:10px 0;font-size:13.5px}
+.info{background:rgba(92,200,255,.09);border:1px solid rgba(92,200,255,.34);color:#cfeeff;border-radius:14px;padding:12px;margin:10px 0;font-size:13.5px}
+/* category tiles */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(106px,1fr));gap:9px}
+.cat{border:1px solid var(--line2);border-radius:14px;padding:12px 6px;text-align:center;background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02));font-size:11.5px;font-weight:600;cursor:pointer;color:#cfd8e4;transition:border-color .15s,box-shadow .2s,transform .12s}
+.cat i{display:block;font-size:26px;font-style:normal;margin-bottom:5px}
+@media (hover:hover){.cat:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.32)}}
+.cat.on{border-color:rgba(92,200,255,.85);color:#e6f7ff;background:linear-gradient(180deg,rgba(92,200,255,.24),rgba(92,200,255,.06));box-shadow:0 0 24px -6px rgba(92,200,255,.65)}
+/* KPIs and bars */
+.kpi{display:grid;grid-template-columns:repeat(auto-fill,minmax(142px,1fr));gap:10px}
+.kpi div{border-radius:16px;padding:14px;cursor:pointer;background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.024));border:1px solid var(--line);box-shadow:inset 0 1px 0 rgba(255,255,255,.1);transition:transform .15s,border-color .2s,box-shadow .2s}
+@media (hover:hover){.kpi div:hover{transform:translateY(-2px);border-color:rgba(92,200,255,.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 14px 30px -14px rgba(92,200,255,.55)}}
+.kpi b{display:block;font:600 31px/1.1 var(--fd);font-variant-numeric:tabular-nums;background:linear-gradient(180deg,#fff,#93a3b8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.kpi small{color:var(--mut);font-size:12px}
+.kpi .r{border-color:rgba(255,90,95,.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 0 26px -8px rgba(255,90,95,.55)}.kpi .r b{background:linear-gradient(180deg,#ffd6d8,#ff5a5f);-webkit-background-clip:text;background-clip:text}
+.bar{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13px}.bar span:first-child{width:44%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#c3cdda}
+.bar i{display:block;height:9px;border-radius:99px;min-width:4px;background:linear-gradient(90deg,#2c9fdc,#9be0ff);box-shadow:0 0 14px rgba(92,200,255,.45);transform-origin:left}
+.bar em{font-style:normal;color:var(--mut);font-variant-numeric:tabular-nums}
+#app.enter .bar i{animation:grow .85s cubic-bezier(.2,.8,.2,1) both}
+.grid2{display:grid;grid-template-columns:1fr;gap:12px}.grid2 .card{margin-bottom:0}@media (min-width:900px){.grid2{grid-template-columns:1fr 1fr}}
+/* lists, tables */
+.item{padding:12px 8px;border-bottom:1px solid var(--line);cursor:pointer;border-radius:10px;transition:background .15s}.item:last-child{border:0}
+@media (hover:hover){.item:hover{background:rgba(255,255,255,.045)}}
+.hist{border-left:2px solid rgba(92,200,255,.5);padding-left:12px;margin:0 0 12px}
+table{border-collapse:collapse;width:100%;font-size:12.5px}th,td{border:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}th{background:rgba(255,255,255,.055);color:#b9c4d3;font-weight:600}
+details summary{cursor:pointer;font-weight:600;color:var(--pri);padding:8px 0;min-height:40px}
+img.th{max-width:100%;max-height:220px;border-radius:12px;border:1px solid var(--line2)}
+/* dock navigation */
+nav{position:fixed;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:30;display:flex;gap:4px;padding:6px;width:min(94vw,470px);border-radius:24px;background:linear-gradient(180deg,rgba(38,47,60,.88),rgba(15,19,26,.92));border:1px solid var(--line2);box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 20px 44px rgba(0,0,0,.6)}
+@supports (backdrop-filter:blur(1px)){nav{backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}}
+nav button{flex:1;flex-direction:column;gap:3px;min-height:54px;padding:6px 2px;background:none;border:0;box-shadow:none;color:var(--mut);font-size:10.5px;font-weight:600;border-radius:17px;filter:none}
+nav button::after{display:none}nav button svg{transition:transform .2s}
+nav button.on{color:#dff4ff;background:linear-gradient(180deg,rgba(92,200,255,.24),rgba(92,200,255,.06));box-shadow:inset 0 0 0 1px rgba(92,200,255,.38),0 0 20px rgba(92,200,255,.2)}
+nav button.cta{color:#05141d;background:linear-gradient(180deg,#b4e7ff,#3aaee8);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 8px 22px -6px rgba(92,200,255,.7)}
+@media (hover:hover){nav button:hover svg{transform:translateY(-2px)}}
+@media (min-width:1000px){main{padding-left:108px}nav{left:18px;top:88px;bottom:auto;transform:none;width:74px;flex-direction:column;border-radius:24px}body{padding-bottom:30px}}
+/* sheets */
+#modal .ov{position:fixed;inset:0;background:rgba(3,6,10,.66);z-index:50;display:flex;align-items:flex-end;justify-content:center;animation:fade .2s both}
+#modal .box{width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:26px 26px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#1c2430,#10141b);border:1px solid var(--line2);border-bottom:0;box-shadow:0 -24px 70px rgba(0,0,0,.65);animation:sheet .3s cubic-bezier(.2,.8,.2,1) both}
+@media (min-width:700px){#modal .ov{align-items:center}#modal .box{border-radius:26px;border-bottom:1px solid var(--line2)}}
+.toast{position:fixed;left:50%;bottom:104px;transform:translateX(-50%);z-index:60;padding:10px 18px;border-radius:99px;background:rgba(20,26,35,.95);border:1px solid rgba(92,200,255,.5);color:#dff4ff;font-weight:600;box-shadow:0 0 28px -6px rgba(92,200,255,.55);animation:sheet .3s both}
+/* sign-in and splash */
+.authwrap{min-height:100vh;display:grid;place-items:center;padding:22px}.authcard{width:min(100%,410px)}
+.authcard .card{padding:26px 22px;text-align:left}.authcard h2{margin:14px 0 4px;text-align:center}.authcard .sub{text-align:center;color:var(--mut);font-size:13px;margin-bottom:6px}
+.sentinel{width:132px;height:132px;margin:0 auto;filter:drop-shadow(0 0 22px rgba(92,200,255,.35))}.sentinel svg{width:100%;height:100%}
+.sweep{transform-origin:60px 60px;animation:spin 7s linear infinite}
+.splash{min-height:100vh;display:grid;place-content:center;justify-items:center;gap:14px;color:var(--mut);font-size:13px}
+.metal{background:linear-gradient(180deg,#fff,#9aa8ba 60%,#6b788a);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* emergency codes */
+.codegrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}@media (min-width:700px){.codegrid{grid-template-columns:repeat(5,1fr)}}
+button.codetile{flex-direction:column;align-items:flex-start;justify-content:flex-start;text-align:left;min-height:96px;padding:14px 12px 12px 18px;border-radius:16px;color:var(--ink);background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:1px solid var(--line2);box-shadow:inset 0 1px 0 rgba(255,255,255,.1);gap:3px}
+button.codetile::before{content:"";position:absolute;left:0;top:0;bottom:0;width:7px;background:var(--cc)}button.codetile::after{display:none}
+button.codetile b{font:600 15px var(--fd)}button.codetile span{font-size:11.5px;color:var(--mut);font-weight:500;line-height:1.3}
+@media (hover:hover){button.codetile:hover{border-color:rgba(255,255,255,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 14px 30px -14px var(--cc)}}
+.sq{display:inline-block;width:16px;height:16px;border-radius:5px;border:1px solid rgba(255,255,255,.42);vertical-align:-3px}.sq.lg{width:46px;height:46px;border-radius:13px;flex:none}.sq.sm{width:11px;height:11px;border-radius:3px;vertical-align:-1px}
+.sqrow{display:flex;flex-wrap:wrap;gap:8px}
+button.sqbtn{min-height:0;width:42px;height:42px;padding:0;border-radius:12px;background:var(--cc);border:2px solid rgba(255,255,255,.25);box-shadow:none}button.sqbtn::after{display:none}button.sqbtn.on{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.22),0 0 22px -2px var(--cc)}
+.codebar{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:18px;margin-bottom:10px;border:1px solid color-mix(in srgb,var(--cc) 60%,transparent);background:linear-gradient(90deg,color-mix(in srgb,var(--cc) 26%,transparent),rgba(255,255,255,.03));box-shadow:0 0 34px -12px var(--cc)}
+.codebar b{font:600 18px var(--fd)}.codebar .timer{margin-left:auto;text-align:right;font:600 19px var(--fd);font-variant-numeric:tabular-nums}.timer small{display:block;font:500 11.5px var(--fb);color:var(--mut)}
+.stick{position:sticky;top:66px;z-index:15;display:flex;gap:8px;flex-wrap:wrap;padding:10px;margin:0 0 12px;border-radius:16px;background:rgba(13,17,24,.86);border:1px solid var(--line2);box-shadow:0 12px 30px -10px rgba(0,0,0,.7)}
+@supports (backdrop-filter:blur(1px)){.stick{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}}
+.stick>*{flex:1;min-width:104px}.stick:empty{display:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+button.chip{min-height:42px;padding:8px 14px;border-radius:99px;font-size:13.5px;font-weight:600;text-align:left;color:#c9d3df;background:rgba(255,255,255,.055);border:1px solid var(--line2);box-shadow:none}
+button.chip::after{display:none}
+button.chip.on{color:#05141d;background:linear-gradient(180deg,#b4e7ff,#4db9f0);border-color:rgba(255,255,255,.55);box-shadow:0 0 18px -2px rgba(92,200,255,.6)}
+.resp{display:grid;grid-template-columns:1.3fr 1fr .8fr;gap:8px;align-items:center;margin:7px 0}@media (max-width:640px){.resp{grid-template-columns:1fr 1fr}.resp button{grid-column:1/-1}}
+.stamp{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 12px;border-radius:12px;background:rgba(92,200,255,.08);border:1px solid rgba(92,200,255,.28);margin:6px 0}.stamp span{color:var(--mut);font-size:12.5px}.stamp b{flex:1;min-width:150px;font-size:13.5px}
+.revs{display:grid;gap:8px}
+.piewrap{display:flex;gap:18px;align-items:center;flex-wrap:wrap}.legend div{margin:5px 0;font-size:13px}.legend b{color:var(--mut);margin-left:4px}
+.pie{width:132px;height:132px;border-radius:50%;-webkit-mask:radial-gradient(circle,transparent 36%,#000 38%);mask:radial-gradient(circle,transparent 36%,#000 38%);box-shadow:0 0 26px -6px rgba(92,200,255,.4)}
+.vbars{display:flex;align-items:flex-end;gap:10px;min-height:150px}.vbars div{flex:1;text-align:center;font-size:11.5px;color:var(--mut);line-height:1.3}
+.vbars i{display:block;width:100%;margin-bottom:5px;border-radius:9px 9px 3px 3px;background:linear-gradient(180deg,#9be0ff,#2c9fdc);box-shadow:0 0 16px rgba(92,200,255,.4)}
+.dial svg{flex:none}
+@keyframes grow{from{transform:scaleX(0)}}@keyframes fade{from{opacity:0}}@keyframes sheet{from{opacity:0;transform:translateY(14px)}}@keyframes spin{to{transform:rotate(360deg)}}@keyframes pulse{50%{opacity:.35}}
+.badge.critical{animation:pulse 2.4s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+/* printing: light, plain, A4 */
+#rep{display:none}
+@page{size:A4;margin:14mm}
+@media print{
+ :root{color-scheme:light}html,body{background:#fff!important;color:#000!important;padding:0!important}body::before{display:none}
+ header,nav,.noprint,button,.btn,#modal,.toast{display:none!important}
+ .card{background:none!important;border:0!important;box-shadow:none!important;padding:0!important;backdrop-filter:none!important}
+ main{padding:0!important;max-width:none}h2,h3,label,.mut,.bar span:first-child,.bar em,td,th{color:#000!important}th{background:#eee!important}th,td{border:1px solid #999!important}
+ .kpi b{color:#000!important;-webkit-text-fill-color:#000;background:none!important}.kpi div{border:1px solid #999!important;background:none!important}
+ .bar i{box-shadow:none!important;background:#555!important}
+ body.printing-inc #app{display:none!important}body.printing-inc #rep{display:block!important}
+ .badge{color:#000!important;background:none!important;border:1px solid #666!important;box-shadow:none!important;animation:none}
+}
+
+.actrow{display:flex;align-items:center;gap:12px;margin:8px 0}.actrow>span:not(.sq){flex:1;min-width:0}.actrow>button{flex:none;min-width:0;width:auto;padding:0 16px}.actrow .sq.lg{width:34px;height:34px}
 </style></head><body>
-<div id="app"></div><div id="modal"></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<linearGradient id="tg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6f9fc"/><stop offset=".5" stop-color="#9aa8ba"/><stop offset="1" stop-color="#5a687b"/></linearGradient>
+<linearGradient id="sg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5cc8ff" stop-opacity="0"/><stop offset="1" stop-color="#5cc8ff" stop-opacity=".42"/></linearGradient>
+</defs></svg>
+<div id="app"><div class="splash"><div class="sentinel"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="url(#tg)" stroke-width="3"/><g class="sweep"><path d="M60 60 L60 8 A52 52 0 0 1 104 34 Z" fill="url(#sg)"/></g><path d="M60 34 L84 46 V68 C84 82 72 90 60 95 C48 90 36 82 36 68 V46 Z" fill="none" stroke="url(#tg)" stroke-width="3" stroke-linejoin="round"/></svg></div>Connecting to the secure database…</div></div><div id="modal"></div><div id="rep"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
 'use strict';
@@ -73,10 +182,10 @@ mk('gen','General Hospital Safety','🏥','Other hospital safety concerns',[
 ['Unsafe behavior by patients, visitors or staff','medium'],['Unsafe storage of materials','medium'],['Damaged doors, walls, ceilings, floors or fixtures','medium'],['Missing safety labels or warning signs','low'],['Defective equipment or exposed electrical wiring','high'],['Elevator malfunction or entrapment concern','high'],['Unusual sound, vibration, heat or burning odor','high',1],['Unsafe contractor activity','high'],['Work performed without required authorization','high'],['Missing personal protective equipment','medium'],['Obstructed access to emergency equipment','high'],['Repeated unresolved safety complaint','medium'],['Other safety concern not covered above','low']]),
 mk('other','Other (not listed)','➕','New complaint type - description mandatory',[['Other - described below','medium']])
 ];
-const DEFAULT_CFG={cats:DEFAULT_CATS,keywords:['smoke','smoking','fire','flame','burn','burning','burnt','spark','sparks','sparking','overheat','overheating','fumes','melting','short circuit'],sla:{critical:1,high:7,medium:30,low:90},depts:['Maintenance','Biomedical Engineering','Electrical','Housekeeping','Nursing','Security','Fire & Safety','IT','Contractor','Other']};
+const DEFAULT_CFG={dial:{red:[{l:'Civil Defense 998',n:'998'},{l:'Unified 911',n:'911'}],pink:[{l:'Unified 911',n:'911'},{l:'Police 999',n:'999'}]},cats:DEFAULT_CATS,keywords:['smoke','smoking','fire','flame','burn','burning','burnt','spark','sparks','sparking','overheat','overheating','fumes','melting','short circuit'],sla:{critical:1,high:7,medium:30,low:90},depts:['Maintenance','Biomedical Engineering','Electrical','Housekeeping','Nursing','Security','Fire & Safety','IT','Contractor','Other']};
 
 /* ===== Local state ===== */
-let db={users:[],cfg:DEFAULT_CFG,complaints:[],audit:[]},me=null,V={n:'home'},F=null,FLT={};
+let db={users:[],cfg:DEFAULT_CFG,complaints:[],incidents:[],audit:[]},me=null,V={n:'home'},F=null,FLT={};
 const uid=()=>(window.crypto&&crypto.randomUUID)?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16)});
 const strip=c=>{const o=Object.assign({},c);delete o._rev;return o};
 function save(){persistPending();pushAll();return true}
@@ -97,20 +206,22 @@ function audit(action,ref,detail){db.audit.push({at:nowISO(),by:me?me.id:'-',byN
 const SUPABASE_URL='https://fkllstlivdcyxcokcqdj.supabase.co';        // optional: paste your Project URL here before hosting the file
 const SUPABASE_ANON_KEY='sb_publishable_tiD5dqI_cnw_gAKMZ1AjiQ_SdIuS7QN';   // optional: anon/publishable key (public by design; data is protected by database policies)
 const BK='sc_backend_cfg',PEND='sc_pending_v2';
-let sb=null,SNAP={},CFGSNAP='',LASTSIG='',again=false,pushP=null,poll=null,SYNC='',loginMsg='';
+let sb=null,SN={complaints:{},incidents:{}},CFGSNAP='',LASTSIG='',again=false,pushP=null,poll=null,SYNC='',loginMsg='';
 function backendCfg(){if(SUPABASE_URL&&SUPABASE_ANON_KEY)return{url:SUPABASE_URL,key:SUPABASE_ANON_KEY};try{const o=JSON.parse(localStorage.getItem(BK));if(o&&o.url&&o.key)return o}catch(e){}return null}
 function initClient(c){if(!window.supabase)return false;sb=window.supabase.createClient(c.url,c.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});return true}
-function setSync(s){SYNC=s;const el=document.getElementById('sync');if(el)el.textContent=syncText()}
-function syncText(){return SYNC==='ok'?'● Synced':SYNC==='busy'?'↻ Syncing…':SYNC==='err'?'⚠ Not synced (will retry)':''}
-const dirtyC=c=>SNAP[c.id]!==JSON.stringify(strip(c));
-function hasPending(){return db.complaints.some(dirtyC)||db.audit.some(a=>a.local)}
-function persistPending(){try{if(!me)return;localStorage.setItem(PEND,JSON.stringify({u:me.id,c:db.complaints.filter(dirtyC),a:db.audit.filter(a=>a.local)}))}catch(e){}}
+function setSync(s){SYNC=s;const el=document.getElementById('sync');if(el){el.textContent=syncText();el.className='sync '+s}}
+function syncText(){return SYNC==='ok'?'Synced':SYNC==='busy'?'Syncing…':SYNC==='err'?'Not synced - will retry':''}
+const TBL=['complaints','incidents'];
+const dirty=(k,c)=>SN[k][c.id]!==JSON.stringify(strip(c));
+const dirtyC=c=>dirty('complaints',c);
+function hasPending(){return TBL.some(k=>db[k].some(c=>dirty(k,c)))||db.audit.some(a=>a.local)}
+function persistPending(){try{if(!me)return;localStorage.setItem(PEND,JSON.stringify({u:me.id,c:db.complaints.filter(c=>dirty('complaints',c)),i:db.incidents.filter(c=>dirty('incidents',c)),a:db.audit.filter(a=>a.local)}))}catch(e){}}
 function restorePending(){try{const p=JSON.parse(localStorage.getItem(PEND)||'null');if(!p||p.u!==me.id)return;const lost=[];
- (p.c||[]).forEach(pc=>{const i=db.complaints.findIndex(x=>x.id===pc.id);
-  if(i<0)db.complaints.push(pc);else if(pc._rev==null){/* insert already reached the server */}
-  else if(db.complaints[i]._rev===pc._rev)db.complaints[i]=pc;else lost.push(pc.ref)});
+ [['complaints',p.c],['incidents',p.i]].forEach(([k,arr])=>(arr||[]).forEach(pc=>{const i=db[k].findIndex(x=>x.id===pc.id);
+  if(i<0)db[k].push(pc);else if(pc._rev==null){/* insert already reached the server */}
+  else if(db[k][i]._rev===pc._rev)db[k][i]=pc;else lost.push(pc.ref)}));
  (p.a||[]).forEach(a=>db.audit.push(a));
- if(lost.length)setTimeout(()=>alert('These complaints were changed by another user while your edits were unsynced, so your unsynced edits were discarded: '+lost.join(', ')),0)}catch(e){}}
+ if(lost.length)setTimeout(()=>alert('These records were changed by another user while your edits were unsynced, so your unsynced edits were discarded: '+lost.join(', ')),0)}catch(e){}}
 function pushAll(){
  if(!sb||!me)return Promise.resolve();
  if(pushP){again=true;return pushP}
@@ -120,11 +231,11 @@ function pushAll(){
     if(!cfgDirty&&!hasPending())break;
     setSync('busy');
     if(cfgDirty){const s=JSON.stringify(db.cfg);const{error}=await sb.from('app_config').upsert({id:1,data:db.cfg});if(error)throw error;CFGSNAP=s}
-    for(const c of db.complaints.slice()){
-     const body=strip(c),s=JSON.stringify(body);if(SNAP[c.id]===s)continue;
-     if(c._rev==null){const{data,error}=await sb.from('complaints').insert({id:c.id,ref:c.ref,data:body}).select('rev').single();if(error)throw error;c._rev=data.rev}
-     else{const{data,error}=await sb.from('complaints').update({data:body}).eq('id',c.id).eq('rev',c._rev).select('rev');if(error)throw error;if(!data.length){await conflict(c);continue}c._rev=data[0].rev}
-     SNAP[c.id]=s}
+    for(const k of TBL){for(const c of db[k].slice()){
+     const body=strip(c),s=JSON.stringify(body);if(SN[k][c.id]===s)continue;
+     if(c._rev==null){const{data,error}=await sb.from(k).insert({id:c.id,ref:c.ref,data:body}).select('rev').single();if(error)throw error;c._rev=data.rev}
+     else{const{data,error}=await sb.from(k).update({data:body}).eq('id',c.id).eq('rev',c._rev).select('rev');if(error)throw error;if(!data.length){await conflict(k,c);continue}c._rev=data[0].rev}
+     SN[k][c.id]=s}}
     const un=db.audit.filter(a=>a.local);
     if(un.length){const{error}=await sb.from('audit_log').insert(un.map(a=>({action:a.action,ref:a.ref,detail:a.detail})));if(error)throw error;un.forEach(a=>{a.local=false})}
    }while(again);
@@ -132,23 +243,26 @@ function pushAll(){
   }catch(e){console.error(e);setSync('err')}
   finally{pushP=null;persistPending()}})();
  return pushP}
-async function conflict(c){const{data}=await sb.from('complaints').select('*').eq('id',c.id).single();
- if(data){const i=db.complaints.findIndex(x=>x.id===c.id),o=data.data;SNAP[c.id]=JSON.stringify(o);o._rev=data.rev;db.complaints[i]=o}
- setTimeout(()=>{alert('Complaint '+c.ref+' was changed by another user. Your last change was NOT saved; the latest version is now shown. Please re-apply your change.');render()},0)}
+async function conflict(k,c){const{data}=await sb.from(k).select('*').eq('id',c.id).single();
+ if(data){const i=db[k].findIndex(x=>x.id===c.id),o=data.data;SN[k][c.id]=JSON.stringify(o);o._rev=data.rev;db[k][i]=o}
+ setTimeout(()=>{alert('Record '+c.ref+' was changed by another user. Your last change was NOT saved; the latest version is now shown. Please re-apply your change.');if(k==='incidents'&&I&&I.id===c.id){const n=db.incidents.find(x=>x.id===c.id);if(n)I=JSON.parse(JSON.stringify(n))}render()},0)}
 async function fetchAll(t,order){let out=[],from=0;for(;;){const{data,error}=await sb.from(t).select('*').order(order).range(from,from+999);if(error)throw error;out=out.concat(data);if(data.length<1000)break;from+=1000}return out}
 async function pullAll(force){
- const[pr,cs,cf,au]=await Promise.all([fetchAll('profiles','full_name'),fetchAll('complaints','created_at'),sb.from('app_config').select('*').eq('id',1).maybeSingle(),fetchAll('audit_log','id')]);
+ const[pr,cs,is,cf,au]=await Promise.all([fetchAll('profiles','full_name'),fetchAll('complaints','created_at'),
+  fetchAll('incidents','created_at').then(r=>{INC_OK=true;return r},()=>{INC_OK=false;return[]}),
+  sb.from('app_config').select('*').eq('id',1).maybeSingle(),fetchAll('audit_log','id')]);
  if(cf.error)throw cf.error;
- const sig=cs.map(r=>r.id+':'+r.rev).join()+'|'+au.length+'|'+(cf.data?cf.data.updated_at:'')+'|'+pr.map(p=>p.id+p.role+p.active).join();
+ const rows={complaints:cs,incidents:is};
+ const sig=cs.map(r=>r.id+':'+r.rev).join()+'|'+is.map(r=>r.id+':'+r.rev).join()+'|'+au.length+'|'+(cf.data?cf.data.updated_at:'')+'|'+pr.map(p=>p.id+p.role+p.active).join();
  if(!force&&sig===LASTSIG)return false;
  LASTSIG=sig;
  db.users=pr.map(x=>({id:x.id,name:x.full_name,role:x.role,active:x.active,email:x.email}));
  const m=db.users.find(u=>u.id===me.id);
  if(!m||!m.active){await forceLogout('Your account is no longer authorized.');return false}
  me=m;
- const local=new Map(db.complaints.map(c=>[c.id,c]));
- db.complaints=cs.map(r=>{const l=local.get(r.id);if(l&&dirtyC(l)&&l._rev===r.rev)return l;const o=r.data;SNAP[r.id]=JSON.stringify(o);o._rev=r.rev;return o});
- local.forEach((l,id)=>{if(l._rev==null&&!cs.some(r=>r.id===id))db.complaints.push(l)});
+ for(const k of TBL){const local=new Map(db[k].map(c=>[c.id,c]));
+  db[k]=rows[k].map(r=>{const l=local.get(r.id);if(l&&dirty(k,l)&&l._rev===r.rev)return l;const o=r.data;SN[k][r.id]=JSON.stringify(o);o._rev=r.rev;return o});
+  local.forEach((l,id)=>{if(l._rev==null&&!rows[k].some(r=>r.id===id))db[k].push(l)})}
  if(cf.data){CFGSNAP=JSON.stringify(cf.data.data);db.cfg=Object.assign({},DEFAULT_CFG,cf.data.data)}else{CFGSNAP='';db.cfg=db.cfg||DEFAULT_CFG}
  const unsent=db.audit.filter(a=>a.local);
  db.audit=au.map(r=>({at:r.at,by:r.user_id,byName:r.user_name,action:r.action,ref:r.ref||'',detail:r.detail||''})).concat(unsent);
@@ -164,31 +278,33 @@ function startPolling(){stopPolling();poll=setInterval(pollOnce,30000)}
 function stopPolling(){if(poll)clearInterval(poll);poll=null}
 async function pollOnce(){if(!me||!sb||document.hidden)return;
  try{await pushAll();const ch=await pullAll();
-  if(me&&ch&&!document.getElementById('modal').innerHTML&&['home','list','detail','reports'].includes(V.n)&&!(document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)))render()}
+  if(me&&ch&&!document.getElementById('modal').innerHTML&&['home','list','detail','reports','codes'].includes(V.n)&&!(document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)))render()}
  catch(e){setSync('err')}}
-async function forceLogout(msg){loginMsg=msg||'';stopPolling();try{await sb.auth.signOut()}catch(e){}me=null;F=null;db.complaints=[];db.audit=[];SNAP={};LASTSIG='';V={n:'home'};render()}
+async function forceLogout(msg){loginMsg=msg||'';stopPolling();try{await sb.auth.signOut()}catch(e){}me=null;F=null;db.complaints=[];db.incidents=[];db.audit=[];SN={complaints:{},incidents:{}};I=null;LASTSIG='';V={n:'home'};render()}
 async function logout(){
  try{audit('LOGOUT');await pushAll()}catch(e){}
  if(hasPending()&&!confirm('Some changes have not synced yet and will stay on this device until you sign in again. Log out anyway?'))return;
  stopPolling();try{await sb.auth.signOut()}catch(e){}
- me=null;F=null;db.complaints=[];db.audit=[];SNAP={};LASTSIG='';loginMsg='';V={n:'home'};render()}
+ me=null;F=null;db.complaints=[];db.incidents=[];db.audit=[];SN={complaints:{},incidents:{}};I=null;LASTSIG='';loginMsg='';V={n:'home'};render()}
 function pwUI(){modal(`<h2>Change my password</h2><label>New password (8+ characters)</label><input id="np" type="password" autocomplete="new-password"><label>Confirm</label><input id="np2" type="password" autocomplete="new-password"><p><button onclick="doPw()">Change</button> <button class="sec" onclick="modal('')">Cancel</button></p>`)}
 async function doPw(){if(np.value.length<8||np.value!==np2.value)return alert('Passwords must match and be at least 8 characters.');
  const{error}=await sb.auth.updateUser({password:np.value});if(error)return alert(error.message);audit('PASSWORD_CHANGED','',me.name);save();modal('');alert('Password changed.')}
 
 /* ===== Login / connection screens ===== */
+const SENT='<div class="sentinel"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" fill="none" stroke="url(#tg)" stroke-width="3"/><circle cx="60" cy="60" r="41" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.14)"/><g class="sweep"><path d="M60 60 L60 8 A52 52 0 0 1 104 34 Z" fill="url(#sg)"/></g><path d="M60 33 L85 45 V67 C85 82 73 90 60 96 C47 90 35 82 35 67 V45 Z" fill="rgba(10,13,18,.65)" stroke="url(#tg)" stroke-width="3" stroke-linejoin="round"/><path d="M45 62 H54 L59 51 L65 72 L69 62 H75" stroke="#5cc8ff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
 function loginView(){const c=backendCfg();
- if(!c)return `<main><div class="card" style="margin-top:30px"><h2>Connect to the shared database</h2>
+ const wrap=inner=>`<div class="authwrap"><div class="authcard">${SENT}<h2 class="metal">Safety Console</h2><div class="sub">Staff complaints and emergency code reports</div>${inner}</div></div>`;
+ if(!c)return wrap(`<div class="card" style="margin-top:18px"><h3>Connect to the shared database</h3>
  <div class="info">One-time setup on this device. Paste the Project URL and the <b>anon / publishable</b> key from Supabase (Project Settings → API). Never paste a secret or service_role key here.</div>
  <label>Project URL</label><input id="su" placeholder="https://xxxx.supabase.co"><label>Anon / publishable key</label><textarea id="sk"></textarea>
- <p><button onclick="saveBackend()">Save & continue</button></p></div></main>`;
- if(!sb)return `<main><div class="card" style="margin-top:30px"><h2>Cannot load the database library</h2><div class="warn">Check your internet connection and reload the page.</div></div></main>`;
- return `<main><div class="card" style="margin-top:30px"><h2>Safety Team Sign-in</h2>
+ <p><button onclick="saveBackend()">Save and continue</button></p></div>`);
+ if(!sb)return wrap(`<div class="card" style="margin-top:18px"><h3>Cannot load the database library</h3><div class="warn">Check your internet connection and reload the page.</div></div>`);
+ return wrap(`<div class="card" style="margin-top:18px"><h3>Safety Team Sign-in</h3>
  <div class="mut">Authorized users only. No registration or guest access.</div>
  <label>Email</label><input id="le_m" type="email" autocomplete="username" value="${esc(localStorage.getItem('sc_last_email')||'')}">
  <label>Password</label><input id="lp" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
- <div id="le" style="color:var(--crit);margin-top:8px;font-size:13px">${esc(loginMsg)}</div>
- <p><button onclick="doLogin()">Sign in</button></p>${SUPABASE_URL?'':`<p class="mut"><a href="#" onclick="resetBackend();return false">Change database connection</a></p>`}</div></main>`}
+ <div id="le" role="alert" style="color:var(--crit);margin-top:10px;font-size:13px;min-height:18px">${esc(loginMsg)}</div>
+ <p><button style="width:100%" onclick="doLogin()">Sign in</button></p>${SUPABASE_URL?'':`<p class="mut"><a href="#" onclick="resetBackend();return false">Change database connection</a></p>`}</div>`)}
 function saveBackend(){const u=su.value.trim().replace(/\/+$/,''),k=sk.value.trim();
  if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(u)||k.length<20)return alert('Enter a valid Supabase project URL (https://xxxx.supabase.co) and the anon / publishable key.');
  let secret=/^sb_secret_/.test(k);try{if(JSON.parse(atob(k.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).role==='service_role')secret=true}catch(e){}
@@ -220,13 +336,29 @@ function suggest(f){const s=findSub(f.cat,f.sub);if(!s)return null;let r=s.r,urg
 const emergencyText='IMMEDIATE RESPONSE REQUIRED. Follow the hospital emergency procedure now (activate the applicable emergency code, contact Security / Fire & Safety / the Fire Brigade as required, and notify the responsible manager). Do not wait to complete this record - save it afterwards.';
 
 /* ===== Routing / render ===== */
-function go(n,p){V=Object.assign({n},p||{});render();window.scrollTo(0,0)}
+let ANIM=false;
+function go(n,p){V=Object.assign({n},p||{});ANIM=true;render();window.scrollTo(0,0)}
+const svg=p=>`<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const IC={home:'<rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/>',
+ list:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/>',plus:'<path d="M12 5v14M5 12h14"/>',
+ codes:'<path d="M7 18v-6a5 5 0 0 1 10 0v6"/><path d="M4 18h16M12 3v2M4.5 6.5l1.4 1.4M19.5 6.5l-1.4 1.4"/>',
+ more:'<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
+ phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>'};
+const LOGO='<svg viewBox="0 0 120 120" width="34" height="34" aria-hidden="true"><circle cx="60" cy="60" r="52" fill="none" stroke="url(#tg)" stroke-width="5"/><path d="M60 30 L86 43 V67 C86 83 73 91 60 97 C47 91 34 83 34 67 V43 Z" fill="rgba(10,13,18,.6)" stroke="url(#tg)" stroke-width="5" stroke-linejoin="round"/><path d="M44 62 H54 L59 50 L65 73 L70 62 H77" stroke="#5cc8ff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function navHTML(){const cur={home:'home',list:'list',detail:'list',new:'new',codes:'codes',inc:'codes'}[V.n]||'more';
+ const b=(k,ic,l,fn,cls)=>`<button type="button" class="${cls||''} ${cur===k?'on':''}" onclick="${fn}" ${cur===k?'aria-current="page"':''}>${svg(IC[ic])}${l}</button>`;
+ return `<nav aria-label="Main">${b('home','home','Console',"go('home')")}${b('list','list','Complaints',"go('list')")}${b('new','plus','New','startNew()','cta')}${b('codes','codes','Codes',"go('codes')")}${b('more','more','More','moreUI()')}</nav>`}
+function moreUI(){modal(`<h2>More</h2><div class="row"><button class="sec" onclick="modal('');go('wa')">WhatsApp evidence</button><button class="sec" onclick="modal('');go('reports')">Reports</button>${isAdmin()?`<button class="sec" onclick="modal('');go('admin')">Administration</button>`:''}</div>
+ <div class="row" style="margin-top:10px"><button class="sec" onclick="modal('');pwUI()">Change password</button><button class="dan" onclick="modal('');logout()">Log out</button></div><p><button class="sec" onclick="modal('')">Close</button></p>`)}
+function animateNums(){if(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+ document.querySelectorAll('.kpi b').forEach(el=>{const t=el.textContent.trim();if(!/^\d+$/.test(t)||+t<2)return;const n=+t,t0=performance.now();
+  (function f(now){const p=Math.min(1,(now-t0)/700);el.textContent=Math.round(n*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(f)})(t0)})}
 function render(){const app=document.getElementById('app');
- if(!me){app.innerHTML=loginView();return}
- const v={home:homeView,list:listView,new:newView,detail:detailView,reports:reportsView,admin:adminView,wa:waView}[V.n]||homeView;
- app.innerHTML=`<header><div><b>Staff Complaints & Safety Deficiencies</b><small>${esc(me.name)} · ${me.role}</small></div><div><span id="sync" style="font-size:11px;opacity:.9;margin-right:8px">${syncText()}</span><button class="sec sm" onclick="pwUI()">Password</button> <button class="sec sm" onclick="logout()">Log out</button></div></header><main>${v()}</main>
- <nav>${[['home','📊','Console'],['new','➕','New'],['list','📋','Complaints'],['wa','💬','WhatsApp'],['reports','📄','Reports']].concat(isAdmin()?[['admin','⚙️','Admin']]:[]).map(x=>`<button class="${V.n===x[0]?'on':''}" onclick="${x[0]==='new'?'startNew()':`go('${x[0]}')`}"><span>${x[1]}</span>${x[2]}</button>`).join('')}</nav>`;
- if(V.n==='new'&&can())updForm();hydrate()}
+ if(!me){app.className='';app.innerHTML=loginView();return}
+ const v={home:homeView,list:listView,new:newView,detail:detailView,reports:reportsView,admin:adminView,wa:waView,codes:codesView,inc:incView}[V.n]||homeView;
+ const enter=ANIM;ANIM=false;app.className=enter?'enter':'';
+ app.innerHTML=`<header><div class="brand">${LOGO}<div><b>Safety Console</b><small>${esc(me.name)} · ${me.role}</small></div></div><div class="sync ${SYNC}" id="sync">${syncText()}</div></header><main>${V.n==='home'?incActiveBanner():''}${v()}</main>${navHTML()}`;
+ if(V.n==='new'&&can())updForm();hydrate();if(enter)animateNums()}
 
 /* ===== Metrics ===== */
 const isOpen=c=>c.status!=='Closed';
@@ -264,19 +396,19 @@ function homeView(){const L=filtered(),open=L.filter(isOpen),od=L.filter(isOverd
  const exitSigns=L.filter(c=>c.cat==='exit'&&/sign/i.test(c.sub)).length,lightDef=L.filter(c=>c.cat==='light'&&/light|illum/i.test(c.sub)).length,chair=L.filter(c=>/evacuation chair/i.test(c.sub)).length;
  const awaiting=open.filter(c=>c.status==='Awaiting repair or other action'||c.status==='Corrective action assigned');
  const rec=Object.entries(countBy(L,c=>c.sub+' @ '+loc(c))).filter(e=>e[1]>1);
- return `<h2>Master Console</h2>${filterBar()}
+ return `<h2>Master Console</h2>${filterBar()}${incConsole()}
  ${od.length?`<div class="alert">⚠ ${od.length} overdue corrective action(s). <a href="#" onclick="FLT.st='overdue';go('list');return false">View</a></div>`:''}
  ${unres.length?`<div class="warn"><b>${unres.length}</b> critical/high-priority deficiency(ies) unresolved.</div>`:''}
  <div class="kpi">${k(L.length,'Total received',"FLT.st='';go('list')")}${k(open.length,'Open',"FLT.st='open';go('list')")}${k(od.length,'Overdue',"FLT.st='overdue';go('list')",od.length?'r':'')}${k(L.filter(c=>c.history.some(h=>h.to==='Reopened')).length,'Reopened',"FLT.st='reopened';go('list')")}${k(unres.length,'Critical/High unresolved',"FLT.st='unres';go('list')",unres.length?'r':'')}${k(L.filter(c=>c.status==='Closed').length,'Closed','FLT.st=\'Closed\';go(\'list\')')}</div>
  <div class="card" style="margin-top:10px"><h3>Response times</h3>Average first response: <b>${dur(avg(L.map(firstResp)))}</b> · Average resolution: <b>${dur(avg(L.map(resTime)))}</b></div>
  <div class="card"><h3>Focus areas</h3><div class="kpi">${k(cat('smoke'),'Smoking reports',"FLT.cat='smoke';go('list')")}${k(smokeRepeat,'Repeated smoking',"FLT.cat='smoke';go('list')")}${k(cat('elec'),'Unauthorized electrical',"FLT.cat='elec';go('list')")}${k(exitSigns,'Exit sign issues',"FLT.cat='exit';go('list')")}${k(lightDef,'Emergency lighting',"FLT.cat='light';go('list')")}${k(chair,'Evacuation chairs',"FLT.cat='light';go('list')")}${k(cat('fire'),'Fire & life safety',"FLT.cat='fire';go('list')")}${k(L.filter(c=>c.dept==='Nursing').length,'From Nursing',"go('list')")}${k(L.filter(c=>c.dept==='Housekeeping').length,'From Housekeeping',"go('list')")}${k(awaiting.length,'Awaiting maintenance / action',"FLT.st='Awaiting repair or other action';go('list')")}</div></div>
- <div class="card"><h3>By category</h3>${bars(countBy(L,c=>catOf(c.cat).name))}</div>
+ <div class="grid2"><div class="card"><h3>By category</h3>${bars(countBy(L,c=>catOf(c.cat).name))}</div>
  <div class="card"><h3>By subcategory</h3>${bars(countBy(L,c=>c.sub))}</div>
  <div class="card"><h3>By reporting department</h3>${bars(countBy(L,c=>c.dept))}</div>
  <div class="card"><h3>By building / floor / unit</h3>${bars(countBy(L,c=>loc(c)))}</div>
  <div class="card"><h3>By status</h3>${bars(countBy(L,c=>c.status))}</div>
  <div class="card"><h3>Recurring deficiencies (same subcategory + location)</h3>${rec.length?rec.map(e=>`<div class="bar"><span>${esc(e[0])}</span><em>${e[1]}×</em></div>`).join(''):'<div class="mut">None detected</div>'}</div>
- <div class="mut">Counts include unverified complaints; see Reports for confirmed vs unverified separation.</div>`}
+ </div><div class="mut">Counts include unverified complaints; see Reports for confirmed vs unverified separation.</div>`}
 
 /* ===== List ===== */
 function listView(){const L=filtered().sort((a,b)=>b.submittedAt.localeCompare(a.submittedAt));
@@ -352,9 +484,9 @@ const URLC=new Map();
 async function signed(p){const h=URLC.get(p);if(h&&h.exp>Date.now())return h.url;
  const{data,error}=await sb.storage.from('evidence').createSignedUrl(p,3600);if(error||!data)return null;
  URLC.set(p,{url:data.signedUrl,exp:Date.now()+3300000});return data.signedUrl}
-function hydrate(){if(!sb)return;
- document.querySelectorAll('img[data-path]').forEach(async el=>{const u=await signed(el.dataset.path);if(u)el.src=u});
- document.querySelectorAll('a[data-dl]').forEach(async a=>{const u=await signed(a.dataset.dl);if(u){a.href=u;a.target='_blank';a.rel='noopener'}})}
+function hydrate(root){root=root||document;if(!sb)return;
+ root.querySelectorAll('img[data-path]').forEach(async el=>{const u=await signed(el.dataset.path);if(u)el.src=u});
+ root.querySelectorAll('a[data-dl]').forEach(async a=>{const u=await signed(a.dataset.dl);if(u){a.href=u;a.target='_blank';a.rel='noopener'}})}
 async function uploadEv(dataUrl){const blob=await(await fetch(dataUrl)).blob();
  const path=new Date().getFullYear()+'/'+uid()+(blob.type==='application/pdf'?'.pdf':'.jpg');
  const{error}=await sb.storage.from('evidence').upload(path,blob,{contentType:blob.type,upsert:false});
@@ -364,7 +496,7 @@ function evList(list){return list.length?list.map(e=>`<div class="card" style="p
 function compress(file){return new Promise((res,rej)=>{const r=new FileReader();r.onerror=()=>rej('Could not read the file.');r.onload=()=>{
  if(!file.type.startsWith('image/')){if(file.type!=='application/pdf')return rej('Only photos/screenshots and PDF files are permitted.');if(file.size>4194304)return rej('PDF must be under 4 MB.');return res({kind:'file',data:r.result})}
  const im=new Image();im.onload=()=>{const s=Math.min(1,1280/Math.max(im.width,im.height)),cv=document.createElement('canvas');cv.width=im.width*s;cv.height=im.height*s;cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);res({kind:'image',data:cv.toDataURL('image/jpeg',.72)})};im.onerror=()=>rej('Could not read the image.');im.src=r.result};r.readAsDataURL(file)})}
-function modal(html){document.getElementById('modal').innerHTML=html?`<div class="ov"><div class="box">${html}</div></div>`:''}
+function modal(html){document.getElementById('modal').innerHTML=html?`<div class="ov" onclick="if(event.target===this)modal('')"><div class="box" role="dialog" aria-modal="true">${html}</div></div>`:''}
 function addEvidenceUI(cid,purpose){modal(`<h2>Add file evidence</h2><label>File (photo, screenshot, PDF)</label><input type="file" id="ef" accept="image/*,application/pdf">
  <label>Note (optional)</label><input id="en">${cid?`<label>Purpose</label><select id="ep"><option value="investigation" ${purpose==='investigation'?'selected':''}>Investigation</option><option value="closure" ${purpose==='closure'?'selected':''}>Closure / completion evidence</option><option value="report">Original report</option></select>`:''}
  <p><button id="evbtn" onclick="doAddEv('${cid||''}')">Add</button> <button class="sec" onclick="modal('')">Cancel</button></p>`)}
@@ -521,6 +653,258 @@ function addCat(){if(!nc_n.value.trim())return;db.cfg.cats.splice(db.cfg.cats.le
 function saveCfg(){db.cfg.keywords=kw.value.split(',').map(x=>x.trim()).filter(Boolean);db.cfg.depts=dp.value.split(',').map(x=>x.trim()).filter(Boolean);PR.forEach(p=>db.cfg.sla[p]=+document.getElementById('sla_'+p).value||1);audit('CONFIG','','Settings saved');save();alert('Saved.')}
 function backup(){const o={exportedAt:nowISO(),by:me.name,config:db.cfg,complaints:db.complaints.map(strip),audit:db.audit.map(a=>({at:a.at,byName:a.byName,action:a.action,ref:a.ref,detail:a.detail}))};
  const blob=new Blob([JSON.stringify(o,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='complaints_backup_'+localDT().slice(0,10)+'.json';a.click();audit('BACKUP');save()}
+
+/* ===== Emergency Code incident reports ===== */
+const CODES=[
+ {id:'red',n:'Code Red',t:'Fire',c:'#e5383b'},
+ {id:'brown',n:'Code Brown',t:'Utility Service Failure',c:'#a8714a'},
+ {id:'pink',n:'Code Pink',t:'Child Abduction',c:'#ff6fae'},
+ {id:'yellow',n:'Code Yellow',t:'External Disaster',c:'#f4c430'},
+ {id:'grey',n:'Code Grey',t:'Severe Climate Condition',c:'#8d99a6'},
+ {id:'white',n:'Code White',t:'Aggressive Person',c:'#eef2f6'},
+ {id:'orange',n:'Code Orange',t:'Hazardous Materials Spill',c:'#ff8a1f'},
+ {id:'black',n:'Code Black',t:'Bomb Threat',c:'#2b323d'},
+ {id:'silver',n:'Code Silver',t:'Active Shooter',c:'#b8c2ce'},
+ {id:'yellow2',n:'Code Yellow 2',t:'External Disaster Response - Pandemic or Epidemic',c:'#f4c430',bg:'repeating-linear-gradient(135deg,#f4c430 0 6px,#a87f00 6px 12px)'}];
+const codeOf=id=>CODES.find(c=>c.id===id)||CODES[0];
+const sqHTML=(c,cls)=>`<span class="sq ${cls||''}" style="background:${c.bg||c.c}" aria-hidden="true"></span>`;
+const BLD={A:['1','2','3','4','Rooftop'],B:['Basement','1','2','3','4','5','6','Rooftop'],C:['Basement','1','2','3','4','Rooftop'],D:['Basement','1','2','3','4','5','6','Rooftop']};
+const ROLES=['Duty Manager','Head Nurse or Department Head (area where the code was activated)','Nursing Supervisor','Plumber','Electrician','HVAC Technician','Low Current Technician','Fire Alarm Technician','Safety Officer on Duty','Safety Manager','Housekeeping Supervisor','Head Nurse','Charge Nurse','Biomedical Engineer','Security Supervisor','Security Personnel','Electrical Engineer','Mechanical Engineer','FMS Director','Project Supervisor','Project Manager','Architect','Others'];
+const NAT_RED=['Burning smell observed','Smoke observed','Fire actually seen','Spark from an electrical device or outlet'];
+const NAT_BROWN=['Leak in the ceiling','Leak from the wall','Leak from a broken pipeline','Other utility service failure'];
+const PIPES=['Domestic water','Chilled water','Fire fighting pipeline','Waste water','R.O. water'];
+const RED_OBS=['Smell of burning','Smoke observed','Spark seen','Spark-like sound heard'];
+const RED_WHERE=['Ceiling','Wall','Behind a closed door','Inside a locked room'];
+const RED_SRC=['Electrical device','Power supply outlet / plug','Wire','Lighting fixture'];
+const PINK_GUARD=['Nurses proceeded to the 4 exits and 5 elevators to stand guard','Other nurses checked all rooms for missing babies','Nursery checked for completeness','Security arrived and relieved the nurses guarding the doors and elevators'];
+const SUG={
+ red:{r:'Critical',i:'Confirm the source and extent. Isolate the affected power supply if it is safe to do so. Keep the area under observation and re-check for recurrence until cleared by the responsible authority.',l:'Inspect and repair or replace the faulty device, outlet or wiring. Review the preventive maintenance and inspection schedule for the area. Share the lessons learned with the department.'},
+ brown:{r:'Medium',i:'Isolate the affected service or leak, place warning signs, protect equipment and patients, arrange repair by the responsible technician, and re-check the area.',l:'Find the root cause, repair or replace worn components, and add the system to the preventive maintenance plan.'},
+ pink:{r:'Critical',i:'Guard all exits and elevators, search the area, contact security and the police, and keep the family informed by the designated person.',l:'Review the infant security procedure, access control and staff drills for the unit.'},
+ orange:{r:'High',i:'Isolate and ventilate the area, consult the SDS before cleanup, use the correct PPE and spill kit, and dispose of waste as hazardous waste.',l:'Review chemical storage and handling, spill kit availability and staff training.'},
+ black:{r:'Critical',i:'Follow the bomb threat procedure, notify the authorities, evacuate as directed and do not touch suspicious items.',l:'Review the threat-handling and evacuation procedure and update staff training.'},
+ white:{r:'High',i:'Protect staff and patients, call security, de-escalate where safe and document what happened.',l:'Review workplace violence prevention measures and staff training.'},
+ silver:{r:'Critical',i:'Follow the active threat procedure and notify the authorities.',l:'Review security measures, drills and communication.'},
+ yellow:{r:'High',i:'Activate the external disaster plan and confirm resources and communication.',l:'Review the disaster plan after the event.'},
+ yellow2:{r:'High',i:'Activate the pandemic or epidemic response plan and confirm resources and communication.',l:'Review the response plan after the event.'},
+ grey:{r:'Medium',i:'Secure the facility, protect people and equipment, and follow the severe weather procedure.',l:'Review preparedness and facility protection measures.'}};
+let I=null,INC_OK=true,INCF={code:'',q:''},INCTAB='reg';const DRAFT='sc_inc_draft_v1';
+const pget=(o,p)=>p.split('.').reduce((a,k)=>a==null?a:a[k],o);
+function pset(o,p,v){const k=p.split('.');let a=o;for(let i=0;i<k.length-1;i++)a=a[k[i]];a[k[k.length-1]]=v}
+const toLoc=iso=>iso?localDT(new Date(iso)):'';
+const durS=ms=>{if(ms==null||isNaN(ms)||ms<0)return '-';const m=Math.round(ms/60000);return m<60?m+' min':Math.floor(m/60)+' h '+(m%60)+' min'};
+const incLoc=i=>[i.bldg&&'Building '+i.bldg,i.floor&&(/^\d/.test(i.floor)?'Floor '+i.floor:i.floor),i.level&&'Level '+i.level,i.area,i.room].filter(Boolean).join(', ')||'-';
+const incDur=i=>i.clearedAt?durS(new Date(i.clearedAt)-new Date(i.startAt)):'-';
+const incOpenStatus=s=>s==='Active'||s==='Reopened';
+function newInc(code){return{id:uid(),code,status:'Active',startAt:nowISO(),clearedAt:'',bldg:'',floor:'',level:'',area:'',room:'',notifVia:'',caller:'',callerName:'',dispatched:[],
+ resp:ROLES.map(r=>({role:r,att:false,name:'',emp:''})),nature:[],pipe:[],obs:[],where:[],src:[],revisits:[],
+ pink:{guard:[],suspect:'',sex:'',race:'',age:'',clothing:'',head:[],armed:'',group:'',other:'',lastSeen:'',direction:'',police:'',policeAt:'',recovered:'',er:'',returned:''},
+ black:{method:'',receivedBy:'',sex:'',voice:'',age:'',demeanor:'',voiceType:'',noise:[],pkgWhere:'',pkgDesc:'',evacuated:'',evacWhere:'',evacAt:'',squadAt:''},
+ orange:{chemical:'',qty:'',sdsAvail:'',sdsUsed:''},generic:{affected:'',actions:''},
+ narrative:'',risk:{level:'',text:''},immediate:'',longterm:'',evidence:[],history:[],enteredBy:me.id,officer:me.id}}
+function incDraft(){try{if(I&&I._rev==null&&!db.incidents.some(x=>x.id===I.id))localStorage.setItem(DRAFT,JSON.stringify(Object.assign({},I,{_u:me.id})))}catch(e){}}
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
+
+/* ---- lists learned from past reports ---- */
+function incLists(){const names=new Set(),ids=new Set(),areas=new Set(),rooms=new Set(),chem=new Set();
+ db.incidents.forEach(x=>{(x.resp||[]).forEach(r=>{if(r.name)names.add(r.name);if(r.emp)ids.add(r.emp)});if(x.callerName)names.add(x.callerName);if(x.area)areas.add(x.area);if(x.room)rooms.add(x.room);if(x.orange&&x.orange.chemical)chem.add(x.orange.chemical)});
+ const dl=(id,s)=>`<datalist id="${id}">${[...s].sort().map(v=>`<option value="${esc(v)}">`).join('')}</datalist>`;
+ return dl('dl_names',names)+dl('dl_ids',ids)+dl('dl_areas',areas)+dl('dl_rooms',rooms)+dl('dl_chem',chem)}
+function nameMap(){const m={};db.incidents.forEach(x=>(x.resp||[]).forEach(r=>{if(r.name&&r.emp)m[r.name.toLowerCase()]=r.emp}));return m}
+
+/* ---- Codes landing page: activate, registry, dashboard ---- */
+function incActiveBanner(){const a=db.incidents.filter(x=>incOpenStatus(x.status));if(!a.length)return '';
+ return `<div class="alert">${a.map(x=>`<div class="actrow">${sqHTML(codeOf(x.code),'lg')}<span>${codeOf(x.code).n} active at ${esc(incLoc(x))} since ${fmt(x.startAt)}</span><button class="sm" onclick="incOpen('${x.id}')">Open report</button></div>`).join('')}</div>`}
+function codesView(){const draft=(()=>{try{const d=JSON.parse(localStorage.getItem(DRAFT)||'null');return d&&d._u===me.id?d:null}catch(e){return null}})();
+ const L=db.incidents.filter(i=>(!INCF.code||i.code===INCF.code)&&(!INCF.q||(i.ref+' '+incLoc(i)+' '+i.narrative).toLowerCase().includes(INCF.q.toLowerCase()))).sort((a,b)=>b.startAt.localeCompare(a.startAt));
+ return `<h2>Emergency codes</h2>
+ ${INC_OK?'':'<div class="warn"><b>Emergency code reports are not enabled in the database yet.</b> Run the phase 2 SQL script in Supabase (SQL Editor), then reload this page.</div>'}
+ ${draft?`<div class="warn">An unsaved ${codeOf(draft.code).n} report from ${fmt(draft.startAt)} is waiting on this device.<div class="row" style="margin-top:8px"><button class="sm" onclick="incResume()">Resume report</button><button class="sec sm" onclick="if(confirm('Discard this unsaved report?')){localStorage.removeItem(DRAFT);render()}">Discard</button></div></div>`:''}
+ ${can()&&INC_OK?`<div class="card"><h3>Activate a code - tap the color. The start time is recorded now.</h3><div class="codegrid">${CODES.map(c=>`<button type="button" class="codetile" style="--cc:${c.bg||c.c}" onclick="incStart('${c.id}')"><b>${c.n}</b><span>${c.t}</span></button>`).join('')}</div></div>`:''}
+ <div class="row noprint" style="margin-bottom:10px"><button class="${INCTAB==='reg'?'':'sec'}" onclick="INCTAB='reg';render()">Registry</button><button class="${INCTAB==='dash'?'':'sec'}" onclick="INCTAB='dash';render()">Dashboard</button></div>
+ ${INCTAB==='dash'?incDash():`<div class="card"><h3>Filter by code</h3><div class="sqrow">${CODES.map(c=>`<button type="button" class="sqbtn ${INCF.code===c.id?'on':''}" title="${c.n}" aria-label="${c.n}" aria-pressed="${INCF.code===c.id}" style="--cc:${c.bg||c.c}" onclick="INCF.code=INCF.code==='${c.id}'?'':'${c.id}';render()"></button>`).join('')}</div>
+ <label>Search</label><input value="${esc(INCF.q)}" onchange="INCF.q=this.value;render()" placeholder="Report number, location or text">
+ <p><button class="sec sm" onclick="incCSV()">Export spreadsheet (CSV)</button></p></div>
+ <div class="card"><h3>Reports (${L.length})</h3>${L.length?L.map(i=>{const c=codeOf(i.code),cls={Active:'critical',Cleared:'medium',Closed:'low',Reopened:'high'}[i.status]||'gray';
+  return `<div class="item" onclick="incOpen('${i.id}')"><div class="row" style="justify-content:space-between;align-items:center"><b>${sqHTML(c)} ${esc(i.ref)} · ${c.n}</b><span class="badge ${cls}">${esc(i.status)}</span></div><div class="mut">${esc(incLoc(i))} · ${fmt(i.startAt)}${i.clearedAt?' · '+incDur(i):''}</div></div>`}).join(''):'<div class="mut">No reports yet. Activate a code above to start one.</div>'}</div>`}`}
+const PAL=['#5cc8ff','#8f7bff','#3ddc97','#f0b429','#ff8a3d','#ff5a5f','#b8c2ce'];
+function pie(o,col){const e=Object.entries(o).sort((a,b)=>b[1]-a[1]),tot=e.reduce((s,x)=>s+x[1],0);if(!tot)return '<div class="mut">No data</div>';let a=0;
+ const seg=e.map(([k,v],i)=>{const s=a/tot*360;a+=v;return `${col(k,i)} ${s}deg ${a/tot*360}deg`}).join(',');
+ return `<div class="piewrap"><div class="pie" style="background:conic-gradient(${seg})" role="img" aria-label="Pie chart"></div><div class="legend">${e.map(([k,v],i)=>`<div><span class="sq sm" style="background:${col(k,i)}"></span> ${esc(k)} <b>${v}</b></div>`).join('')}</div></div>`}
+function incDash(){const L=db.incidents;if(!L.length)return '<div class="card"><div class="mut">The dashboard fills in as reports are saved.</div></div>';
+ const byCode={};CODES.forEach(c=>{const n=L.filter(i=>i.code===c.id).length;if(n)byCode[c.n]=n});
+ const cc=k=>{const c=CODES.find(x=>x.n===k);return c.bg||c.c};
+ const mon=[];for(let k=5;k>=0;k--){const d=new Date();d.setMonth(d.getMonth()-k,1);mon.push({k:d.getFullYear()+'-'+d.getMonth(),l:d.toLocaleString('en-GB',{month:'short'}),n:0})}
+ L.forEach(i=>{const d=new Date(i.startAt),m=mon.find(x=>x.k===d.getFullYear()+'-'+d.getMonth());if(m)m.n++});const mx=Math.max(1,...mon.map(m=>m.n));
+ const dur={};CODES.forEach(c=>{const v=L.filter(i=>i.code===c.id&&i.clearedAt).map(i=>new Date(i.clearedAt)-new Date(i.startAt));if(v.length)dur[c.n]=v.reduce((a,b)=>a+b,0)/v.length});
+ const bld=countBy(L,i=>i.bldg?'Building '+i.bldg:'Not recorded');
+ return `<div class="grid2"><div class="card"><h3>Reports by code</h3>${bars(byCode)}</div>
+ <div class="card"><h3>Share of reports</h3>${pie(byCode,k=>cc(k))}</div>
+ <div class="card"><h3>Reports per month (last 6)</h3><div class="vbars">${mon.map(m=>`<div><i style="height:${Math.max(4,m.n/mx*100)}px"></i>${m.n}<br>${m.l}</div>`).join('')}</div></div>
+ <div class="card"><h3>By building</h3>${pie(bld,(k,i)=>PAL[i%PAL.length])}</div>
+ <div class="card"><h3>Average time to clear</h3>${Object.keys(dur).length?Object.entries(dur).map(([k,v])=>`<div class="bar"><span>${esc(k)}</span><em>${durS(v)}</em></div>`).join(''):'<div class="mut">No cleared reports yet.</div>'}</div>
+ <div class="card"><h3>Status</h3>${bars(countBy(L,i=>i.status))}</div></div>`}
+function incCSV(){const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+ const rows=db.incidents.map(i=>[i.ref,codeOf(i.code).n,codeOf(i.code).t,i.status,i.startAt,i.clearedAt,incDur(i),incLoc(i),uname(i.officer),(i.nature||[]).join('; '),i.risk&&i.risk.level,i.narrative].map(q).join(','));
+ const b=new Blob(['﻿'+['Ref','Code','Type','Status','Start','Cleared','Duration','Location','Officer','Nature','Risk','Narrative'].map(q).join(',')+'\n'+rows.join('\n')],{type:'text/csv'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='Emergency_codes_'+localDT().slice(0,10)+'.csv';a.click();audit('EXPORT','','Incident CSV');save()}
+
+/* ---- open / start / resume ---- */
+function incStart(code){if(!can()||!INC_OK)return;I=newInc(code);incDraft();go('inc')}
+function incResume(){try{const d=JSON.parse(localStorage.getItem(DRAFT));delete d._u;I=d;go('inc')}catch(e){alert('The saved draft could not be opened.')}}
+function incOpen(id){const x=db.incidents.find(y=>y.id===id);if(!x)return;I=JSON.parse(JSON.stringify(x));go('inc')}
+
+/* ---- editor helpers ---- */
+const chip=(p,v,l)=>{const on=(pget(I,p)||[]).includes(v);return `<button type="button" class="chip ${on?'on':''}" aria-pressed="${on}" data-p="${p}" data-v="${esc(v)}" onclick="incTog(this)">${esc(l||v)}</button>`};
+const rad=(p,v,l)=>{const on=pget(I,p)===v;return `<button type="button" class="chip ${on?'on':''}" aria-pressed="${on}" data-p="${p}" data-v="${esc(v)}" onclick="incRadio(this)">${esc(l||v)}</button>`};
+const fld=(p,l,ph,list)=>`<label>${l}</label><input data-p="${p}" value="${esc(pget(I,p))}" ${ph?`placeholder="${esc(ph)}"`:''} ${list?`list="${list}"`:''} oninput="incSet(this)">`;
+const txa=(p,l,r)=>`<label>${l}</label><textarea data-p="${p}" rows="${r||3}" oninput="incSet(this)">${esc(pget(I,p))}</textarea>`;
+const chips=(p,arr,fn)=>`<div class="chips">${arr.map(v=>(fn||chip)(p,v)).join('')}</div>`;
+function incRerender(){const f=document.getElementById('incform');if(!f)return;const y=window.scrollY;f.innerHTML=incFormHTML();window.scrollTo(0,y);incDraft()}
+function incTog(el){const p=el.dataset.p,v=el.dataset.v,a=pget(I,p),i=a.indexOf(v);if(i<0)a.push(v);else a.splice(i,1);
+ el.classList.toggle('on');el.setAttribute('aria-pressed',i<0);incDraft();if(p==='nature')incRerender()}
+function incRadio(el){const p=el.dataset.p,v=el.dataset.v;pset(I,p,pget(I,p)===v?'':v);if(p==='bldg'){I.floor='';I.level=''}if(p==='floor')I.level='';incRerender()}
+function incSet(el){pset(I,el.dataset.p,el.value);incDraft()}
+function incTime(p,el){pset(I,p,el.value?new Date(el.value).toISOString():'');incDraft()}
+function incStamp(p){pset(I,p,nowISO());incRerender()}
+function incStampClr(p){pset(I,p,'');incRerender()}
+function stampRow(p,l){const v=pget(I,p);return v?`<div class="stamp"><span>${l}</span><b>${fmt(v)}</b><button type="button" class="sec sm" onclick="incStampClr('${p}')">Reset</button></div>`:`<button type="button" class="sec" onclick="incStamp('${p}')">Record: ${l}</button>`}
+function incResp(i){const r=I.resp[i];r.att=!r.att;incRerender()}
+function incRespF(i,k,el){const r=I.resp[i];r[k]=el.value;
+ if(k==='name'&&el.value){if(!r.att){r.att=true;el.parentNode.querySelector('.chip').classList.add('on')}
+  const e=nameMap()[el.value.toLowerCase()];if(e&&!r.emp){r.emp=e;el.parentNode.querySelector('input[data-k=emp]').value=e}}incDraft()}
+function revisitHTML(){return `<label>Revisits to check for recurrence</label><div class="revs">${[1,2].map(n=>{const r=(I.revisits||[]).find(x=>x.n===n);
+ return r?`<div class="stamp"><span>Revisit ${n}</span><b>${fmt(r.at)} - ${esc(r.result)}${r.note?' ('+esc(r.note)+')':''}</b><button type="button" class="sec sm" onclick="incRevisitUI(${n})">Redo</button></div>`:`<button type="button" class="sec" onclick="incRevisitUI(${n})">Record revisit ${n}</button>`}).join('')}</div>`}
+function incRevisitUI(n){modal(`<h2>Revisit ${n}</h2><div class="mut">The time is recorded when you choose a result.</div><label>Note (optional)</label><input id="rv_n"><div class="row" style="margin-top:12px"><button class="dan" onclick="incRevisit(${n},'Something observed')">Something observed</button><button onclick="incRevisit(${n},'Nothing unsafe observed')">Nothing unsafe observed</button></div><p><button class="sec" onclick="modal('')">Cancel</button></p>`)}
+function incRevisit(n,res){I.revisits=(I.revisits||[]).filter(x=>x.n!==n);I.revisits.push({n,at:nowISO(),result:res,note:rv_n.value.trim()});modal('');incRerender()}
+function incEvUI(){modal(`<h2>Add photo or file</h2><label>Photo, screenshot or PDF</label><input type="file" id="incf" accept="image/*,application/pdf"><label>Note (optional)</label><input id="incn"><p><button id="incevb" onclick="doIncEv()">Add</button> <button class="sec" onclick="modal('')">Cancel</button></p>`)}
+async function doIncEv(){const f=incf.files[0];if(!f)return alert('Choose a file.');const b=document.getElementById('incevb');b.disabled=true;b.textContent='Uploading…';
+ try{const x=await compress(f),path=await uploadEv(x.data);I.evidence.push({id:uid(),kind:x.kind,path,name:f.name,note:incn.value,by:me.id,at:nowISO(),purpose:'incident'});modal('');incRerender();hydrate()}
+ catch(e){b.disabled=false;b.textContent='Add';alert(e.message||e)}}
+function incSuggest(){const s=SUG[I.code];if(!s)return;if(!I.risk.level)I.risk.level=s.r;if(!I.immediate.trim())I.immediate=s.i;if(!I.longterm.trim())I.longterm=s.l;incRerender()}
+
+/* ---- narrative and details ---- */
+function incDetails(i){const J=a=>(a||[]).join('; '),o=[],P=i.pink,B=i.black,O=i.orange,G=i.generic;
+ if(i.code==='red'){o.push(['Nature of emergency',J(i.nature)],['What was observed',J(i.obs)],['Where observed',J(i.where)],['Source identified',J(i.src)])}
+ else if(i.code==='brown'){o.push(['Nature of failure',J(i.nature)],['Pipeline type',J(i.pipe)])}
+ else if(i.code==='pink'){o.push(['Guarding and search actions completed',J(P.guard)],['Suspected abductor seen',P.suspect]);
+  if(P.suspect==='Yes')o.push(['Sex',P.sex],['Ethnic race',P.race],['Estimated age',P.age],['Clothing',P.clothing],['Headwear',J(P.head)],['Armed',P.armed],['Alone or with accomplice',P.group],['Other identifying information',P.other],['Last seen location',P.lastSeen],['Direction headed',P.direction]);
+  o.push(['Police contacted',P.police],['Police contacted at',P.policeAt?fmt(P.policeAt):''],['Baby recovered',P.recovered],['Sent to ER for check-up',P.er],['Returned to the parents',P.returned])}
+ else if(i.code==='black'){o.push(['Threat received by',B.method],['Received by (name)',B.receivedBy],['Caller sex',B.sex],['Voice description',B.voice],['Estimated age',B.age],['Demeanor',B.demeanor],['Voice',B.voiceType],['Background noise',J(B.noise)],['Package found at',B.pkgWhere],['Package description',B.pkgDesc],['Occupants evacuated',B.evacuated],['Evacuated buildings / floors',B.evacWhere],['Evacuation time',B.evacAt?fmt(B.evacAt):''],['Bomb squad arrived',B.squadAt?fmt(B.squadAt):''])}
+ else if(i.code==='orange'){o.push(['Chemical spilled',O.chemical],['Quantity',O.qty],['SDS available',O.sdsAvail],['SDS consulted before cleanup',O.sdsUsed])}
+ else o.push(['Persons affected',G.affected],['Actions taken',G.actions]);
+ return o.filter(r=>r[1])}
+function genNarrative(i){const c=codeOf(i.code),P=[],loc=incLoc(i);
+ P.push(`${c.n} (${c.t}) was activated on ${fmt(i.startAt)}${loc!=='-'?' at '+loc:''}.`);
+ if(i.notifVia||i.caller)P.push(`The Safety Officer on duty was notified${i.notifVia?' by '+i.notifVia.toLowerCase():''}${i.caller?' from a '+i.caller.toLowerCase()+(i.callerName?' ('+i.callerName+')':''):''}.`);
+ if(i.dispatched.length)P.push('The Safety Officer dispatched: '+i.dispatched.join(', ')+'.');
+ incDetails(i).forEach(([k,v])=>P.push(k+': '+v+'.'));
+ (i.revisits||[]).slice().sort((a,b)=>a.n-b.n).forEach(r=>P.push(`Revisit ${r.n} at ${fmt(r.at)}: ${r.result.toLowerCase()}${r.note?' ('+r.note+')':''}.`));
+ const att=(i.resp||[]).filter(r=>r.att).map(r=>r.role.replace(/ \(.*\)/,''));if(att.length)P.push('Responders attended: '+att.join(', ')+'.');
+ P.push(i.clearedAt?`The code was cleared on ${fmt(i.clearedAt)} (duration ${incDur(i)}).`:'The code has not been cleared yet.');
+ return P.join(' ')}
+function incGen(){I.narrative=genNarrative(I);const t=document.getElementById('incnar');if(t)t.value=I.narrative;incDraft()}
+
+/* ---- the form ---- */
+function incCodeSection(){const c=I.code;
+ if(c==='red')return `<div class="card"><h3>Fire details</h3><label>Nature of emergency</label>${chips('nature',NAT_RED)}<label>What was observed</label>${chips('obs',RED_OBS)}<label>Where observed</label>${chips('where',RED_WHERE)}<label>Source identified (once known)</label>${chips('src',RED_SRC)}${revisitHTML()}</div>`;
+ if(c==='brown')return `<div class="card"><h3>Utility failure details</h3><label>Nature of failure</label>${chips('nature',NAT_BROWN)}${I.nature.includes('Leak from a broken pipeline')?`<label>Pipeline type</label>${chips('pipe',PIPES)}`:''}${revisitHTML()}<div class="mut" style="margin-top:8px">More Code Brown fields will be added later.</div></div>`;
+ if(c==='pink'){const P=I.pink;return `<div class="card"><h3>Code Pink details</h3><label>Actions completed</label>${chips('pink.guard',PINK_GUARD)}
+  <label>Was a suspected abductor seen?</label><div class="chips">${rad('pink.suspect','Yes')}${rad('pink.suspect','No')}</div>
+  ${P.suspect==='Yes'?`<label>Sex</label><div class="chips">${rad('pink.sex','Male')}${rad('pink.sex','Female')}</div><label>Ethnic race</label><div class="chips">${['Asian','Arab','Indian','European','American'].map(v=>rad('pink.race',v)).join('')}</div>${fld('pink.age','Estimated age')}${fld('pink.clothing','Clothing description and color')}<label>Headwear</label>${chips('pink.head',['Hat','Cap','Turban','Head cover'])}<label>Armed with a weapon?</label><div class="chips">${rad('pink.armed','Yes')}${rad('pink.armed','No')}</div><label>Alone or with an accomplice?</label><div class="chips">${rad('pink.group','Alone')}${rad('pink.group','With an accomplice')}</div>${fld('pink.other','Other identifying information')}${fld('pink.lastSeen','Last seen location')}${fld('pink.direction','Direction headed')}`:''}
+  <label>Police contacted?</label><div class="chips">${rad('pink.police','Yes')}${rad('pink.police','No')}</div>${P.police==='Yes'?stampRow('pink.policeAt','Police contacted'):''}
+  <label>Baby recovered?</label><div class="chips">${rad('pink.recovered','Yes')}${rad('pink.recovered','No')}</div>
+  ${P.recovered==='Yes'?`<label>Sent to ER for a check-up?</label><div class="chips">${rad('pink.er','Yes')}${rad('pink.er','No')}</div><label>Returned to the parents?</label><div class="chips">${rad('pink.returned','Yes')}${rad('pink.returned','No')}</div>`:''}
+  <div class="mut" style="margin-top:8px">Code Pink is cleared after the baby is returned to the parents.</div></div>`}
+ if(c==='black'){const B=I.black,pk=B.method==='Suspicious package or baggage';return `<div class="card"><h3>Bomb threat details</h3><label>How was the threat delivered?</label><div class="chips">${['Phone call','Text message','Email','Suspicious package or baggage'].map(v=>rad('black.method',v)).join('')}</div>
+  ${B.method&&!pk?fld('black.receivedBy','Received by (name)','','dl_names'):''}
+  ${B.method==='Phone call'?`<label>Caller sex</label><div class="chips">${rad('black.sex','Male')}${rad('black.sex','Female')}</div>${fld('black.voice','Voice description')}<label>Estimated age</label><div class="chips">${['Under 18','18 to 30','31 to 50','Over 50'].map(v=>rad('black.age',v)).join('')}</div><label>Demeanor</label><div class="chips">${['Angry','Sad','Neutral'].map(v=>rad('black.demeanor',v)).join('')}</div><label>Voice</label><div class="chips">${rad('black.voiceType','Natural')}${rad('black.voiceType','Altered (voice-changing app)')}</div><label>Background noise</label>${chips('black.noise',['Train','Busy road','Machines','Music','Chatter','Others'])}`:''}
+  ${pk?`${fld('black.pkgWhere','Where the package was found')}${fld('black.pkgDesc','Package description')}<div class="mut">Attach a photo under Evidence to share with the authorities.</div>`:''}
+  <label>Were building occupants evacuated?</label><div class="chips">${rad('black.evacuated','Yes')}${rad('black.evacuated','No')}</div>${B.evacuated==='Yes'?fld('black.evacWhere','Buildings and floors evacuated')+stampRow('black.evacAt','Evacuation time'):''}
+  <div style="margin-top:10px">${stampRow('black.squadAt','Bomb squad arrived')}</div></div>`}
+ if(c==='orange')return `<div class="card"><h3>Hazardous materials details</h3>${fld('orange.chemical','Chemical that leaked or spilled','','dl_chem')}${fld('orange.qty','Estimated quantity')}<label>Was an SDS available?</label><div class="chips">${rad('orange.sdsAvail','Yes')}${rad('orange.sdsAvail','No')}</div><label>Was the SDS consulted before cleanup?</label><div class="chips">${rad('orange.sdsUsed','Yes')}${rad('orange.sdsUsed','No')}</div></div>`;
+ return `<div class="card"><h3>Incident details</h3>${txa('generic.affected','Persons affected',2)}${txa('generic.actions','Actions taken',3)}<div class="mut">A detailed checklist for this code will be added later.</div></div>`}
+function incFormHTML(){
+ return `${incLists()}
+ <div class="card"><h3>Time</h3><div class="row"><div><label>Start of code</label><input type="datetime-local" value="${toLoc(I.startAt)}" onchange="incTime('startAt',this)"></div>
+ <div><label>Code cleared</label>${I.clearedAt?`<input type="datetime-local" value="${toLoc(I.clearedAt)}" onchange="incTime('clearedAt',this)">`:'<div class="mut" style="padding:12px 0">Not cleared yet. Use the Code cleared button.</div>'}</div></div></div>
+ <div class="card"><h3>Location</h3><label>Building</label><div class="chips">${Object.keys(BLD).map(b=>rad('bldg',b,'Building '+b)).join('')}</div>
+ ${I.bldg?`<label>Floor</label><div class="chips">${BLD[I.bldg].map(f=>rad('floor',f,/^\d/.test(f)?'Floor '+f:f)).join('')}</div>`:''}
+ ${I.bldg==='D'&&I.floor&&I.floor!=='Rooftop'?`<label>Level</label><div class="chips">${rad('level','A','Level A')}${rad('level','B','Level B')}</div>`:''}
+ ${fld('area','Unit or department','e.g. Unit 8, Laboratory','dl_areas')}${fld('room','Room or exact spot','','dl_rooms')}</div>
+ <div class="card"><h3>Notification and dispatch</h3><label>Safety Officer notified by</label><div class="chips">${['Landline','Radio','Other'].map(v=>rad('notifVia',v)).join('')}</div>
+ <label>Call made by</label><div class="chips">${['Staff nurse','Head nurse','Other'].map(v=>rad('caller',v)).join('')}</div>${fld('callerName','Caller name (if known)','','dl_names')}
+ <label>Safety Officer then dispatched</label>${chips('dispatched',['Security','Plumber','Electrician','Carpenter','Others'])}</div>
+ ${incCodeSection()}
+ <details class="card"><summary>Responders who attended (${I.resp.filter(r=>r.att).length})</summary><div class="mut">Tick the roles that attended. A name is optional; a ticked role without a name still counts.</div>
+ ${I.resp.map((r,i)=>`<div class="resp"><button type="button" class="chip ${r.att?'on':''}" aria-pressed="${r.att}" onclick="incResp(${i})">${esc(r.role)}</button><input placeholder="Name" list="dl_names" value="${esc(r.name)}" oninput="incRespF(${i},'name',this)"><input data-k="emp" placeholder="Employee ID" list="dl_ids" value="${esc(r.emp)}" oninput="incRespF(${i},'emp',this)"></div>`).join('')}</details>
+ <div class="card"><h3>Photos and evidence</h3>${evList(I.evidence)}<button type="button" class="sec" onclick="incEvUI()">Add photo or file</button></div>
+ <div class="card"><h3>Narrative</h3><textarea id="incnar" data-p="narrative" rows="7" oninput="incSet(this)">${esc(I.narrative)}</textarea><p><button type="button" class="sec sm" onclick="incGen()">Generate from selections</button></p></div>
+ <div class="card"><h3>Risk assessment and action plans</h3><label>Risk level</label><div class="chips">${['Low','Medium','High','Critical'].map(v=>rad('risk.level',v)).join('')}</div>${txa('risk.text','Risk assessment',3)}${txa('immediate','Immediate action plan',3)}${txa('longterm','Long-term action plan',3)}
+ <p><button type="button" class="sec sm" onclick="incSuggest()">Insert suggested items</button></p><div class="mut">Suggested items fill empty fields only. Review and edit them before closing the report.</div></div>`}
+function timerText(){if(!I)return '';if(I.clearedAt)return 'Duration '+incDur(I);const s=Math.max(0,Math.floor((Date.now()-new Date(I.startAt))/1000)),p=n=>String(n).padStart(2,'0');return 'Elapsed '+p(Math.floor(s/3600))+':'+p(Math.floor(s/60)%60)+':'+p(s%60)}
+setInterval(()=>{const el=document.getElementById('incTimer');if(el&&I)el.textContent=timerText()},1000);
+function incView(){if(!I)return '<div class="warn">No report is open.</div><p><button onclick="go(\'codes\')">Back to codes</button></p>';
+ const c=codeOf(I.code),closed=I.status==='Closed',ro=!can()||closed,dials=(db.cfg.dial&&db.cfg.dial[I.code])||[];
+ return `<p class="noprint"><button class="sec sm" onclick="go('codes')">Back to codes</button></p>
+ <div class="codebar" style="--cc:${c.bg?'#f4c430':c.c}">${sqHTML(c,'lg')}<div><b>${c.n}</b><div class="mut">${c.t}</div></div><div class="timer"><span id="incTimer">${timerText()}</span><small>${esc(I.ref||'Not saved yet')} · ${esc(I.status)}</small></div></div>
+ ${closed?'<div class="info">This report is closed and locked.'+(isAdmin()?' <button class="sm" onclick="incReopen()">Reopen report</button>':' An administrator can reopen it.')+'</div>':''}
+ <div class="stick noprint">${dials.map(d=>`<a class="btn dial" href="tel:${d.n}">${svg(IC.phone)} ${esc(d.l)}</a>`).join('')}${ro?'':`<button class="dan" onclick="incClear()">Code cleared</button><button onclick="incSave()">Save</button>`}</div>
+ <fieldset id="incfs" ${ro?'disabled':''}><div id="incform">${incFormHTML()}</div></fieldset>
+ <div class="card noprint"><h3>Report</h3><div class="row"><button class="sec" onclick="incPrint()">Print or save as PDF</button><button class="sec" onclick="incDoc()">Download .doc</button><button class="sec" onclick="incWA()">Share summary on WhatsApp</button></div>
+ ${ro?'':`<p><button class="dan" onclick="incClose()">Close report</button></p><div class="mut">Closing needs a cleared time, location, risk level, immediate action plan and narrative. A closed report is locked.</div>`}</div>
+ <div class="card"><h3>History</h3>${(I.history||[]).slice().reverse().map(h=>`<div class="hist"><b>${h.from?esc(h.from)+' → ':''}${esc(h.to)}</b><div class="mut">${fmt(h.at)} · ${esc(uname(h.by))}</div>${h.comment?`<div>${esc(h.comment)}</div>`:''}</div>`).join('')||'<div class="mut">No history yet.</div>'}</div>`}
+
+/* ---- save / clear / close / reopen ---- */
+const incHist=(to,comment)=>{I.history=I.history||[];I.history.push({at:nowISO(),by:me.id,from:I.status,to,comment:comment||''})};
+async function incSave(quiet){
+ const idx=db.incidents.findIndex(x=>x.id===I.id);
+ if(idx<0){let ref;try{const{data,error}=await sb.rpc('next_ref',{ref_kind:'EC'});if(error)throw error;ref=data}
+  catch(e){alert('Cannot reach the database to issue the report number. Your entries are kept on this device. Try again when the connection returns. In a live emergency, respond first.');return false}
+  I.ref=ref;I.history.push({at:nowISO(),by:me.id,from:null,to:'Active',comment:'Code activated and report opened'});db.incidents.push(JSON.parse(JSON.stringify(I)));audit('INC_CREATE',ref,codeOf(I.code).n+' / '+incLoc(I))}
+ else{db.incidents[idx]=JSON.parse(JSON.stringify(I));audit('INC_UPDATE',I.ref,I.status)}
+ try{localStorage.removeItem(DRAFT)}catch(e){}
+ persistPending();await pushAll();
+ const s=db.incidents.find(x=>x.id===I.id);if(s)I=JSON.parse(JSON.stringify(s));
+ if(!quiet)toast(dirty('incidents',s)?'Saved on this device - waiting to sync':'Saved');
+ if(V.n==='inc')render();return true}
+async function incClear(){
+ if(I.code==='pink'&&I.pink.returned!=='Yes'&&!confirm('The baby is not recorded as returned to the parents. Clear Code Pink anyway?'))return;
+ if(!confirm('Record Code cleared now?'))return;
+ I.clearedAt=nowISO();if(incOpenStatus(I.status)){incHist('Cleared','Code cleared');I.status='Cleared'}
+ await incSave()}
+async function incClose(){const m=[];if(!I.clearedAt)m.push('Code cleared time');if(!I.bldg||!I.floor)m.push('building and floor');if(!I.risk.level)m.push('risk level');if(!I.immediate.trim())m.push('immediate action plan');
+ if(m.length)return alert('Before closing, complete: '+m.join(', ')+'.');
+ if(!I.narrative.trim())I.narrative=genNarrative(I);
+ if(!confirm('Close this report? It will be locked.'))return;
+ incHist('Closed','Report completed and closed');I.status='Closed';await incSave()}
+async function incReopen(){const why=prompt('Reason for reopening this report:');if(!why)return;incHist('Reopened',why);I.status='Reopened';await incSave()}
+
+/* ---- report outputs ---- */
+const REPCSS='.rep{font:11pt/1.4 Arial,Helvetica,sans-serif;color:#000}.rep h1{font-size:18pt;margin:0 0 4px}.rep h2{font-size:12pt;margin:14px 0 4px;border-bottom:1px solid #444;padding-bottom:2px}.rep table{border-collapse:collapse;width:100%;margin:4px 0}.rep th,.rep td{border:1px solid #888;padding:4px 6px;text-align:left;vertical-align:top;font-size:10pt}.rep th{background:#eee;width:32%}.rep .cb{display:inline-block;width:12px;height:12px;border:1px solid #000;vertical-align:-1px}.rep img{max-width:260px;max-height:200px;margin:4px;border:1px solid #888}.rep p{margin:4px 0;white-space:pre-wrap}';
+function incReportHTML(i,img){const c=codeOf(i.code),T=rows=>`<table>${rows.map(r=>`<tr><th>${esc(r[0])}</th><td>${esc(r[1])}</td></tr>`).join('')}</table>`;
+ const att=(i.resp||[]).filter(r=>r.att);
+ return `<div class="rep"><h1>Emergency Code Incident Report</h1><div><span class="cb" style="background:${c.bg?'#f4c430':c.c}"></span> <b>${c.n} - ${c.t}</b> · Report ${esc(i.ref||'(not saved)')}</div>
+ <h2>Summary</h2>${T([['Status',i.status],['Start of code',fmt(i.startAt)],['Code cleared',i.clearedAt?fmt(i.clearedAt):'Not cleared'],['Duration',incDur(i)],['Location',incLoc(i)],['Responding Safety Officer',uname(i.officer)],['Safety Officer notified by',[i.notifVia,i.caller,i.callerName].filter(Boolean).join(' / ')||'-'],['Dispatched',(i.dispatched||[]).join(', ')||'-']])}
+ ${incDetails(i).length?`<h2>Incident details</h2>${T(incDetails(i))}`:''}
+ ${(i.revisits||[]).length?`<h2>Revisits</h2>${T(i.revisits.slice().sort((a,b)=>a.n-b.n).map(r=>['Revisit '+r.n,fmt(r.at)+' - '+r.result+(r.note?' ('+r.note+')':'')]))}`:''}
+ <h2>Narrative</h2><p>${esc(i.narrative||genNarrative(i))}</p>
+ <h2>Risk assessment</h2>${T([['Risk level',(i.risk&&i.risk.level)||'-'],['Assessment',(i.risk&&i.risk.text)||'-']])}
+ <h2>Immediate action plan</h2><p>${esc(i.immediate||'-')}</p><h2>Long-term action plan</h2><p>${esc(i.longterm||'-')}</p>
+ <h2>Responders who attended</h2>${att.length?`<table><tr><th>Role</th><th>Name</th><th>Employee ID</th></tr>${att.map(r=>`<tr><td>${esc(r.role)}</td><td>${esc(r.name||'-')}</td><td>${esc(r.emp||'-')}</td></tr>`).join('')}</table>`:'<p>None recorded.</p>'}
+ <h2>Photos</h2>${(i.evidence||[]).length?(img?(i.evidence.filter(e=>e.kind==='image').map(e=>`<img data-path="${esc(e.path)}" alt="Incident photo">`).join('')):`<p>${i.evidence.length} file(s) attached in the application record.</p>`):'<p>None attached.</p>'}
+ <h2>Record history</h2>${T((i.history||[]).map(h=>[fmt(h.at)+' - '+uname(h.by),(h.from?h.from+' → ':'')+h.to+(h.comment?': '+h.comment:'')]))}
+ <p style="font-size:9pt;color:#444">Generated ${fmt(nowISO())} by ${esc(me.name)}. This report is generated in English from the application record.</p></div>`}
+async function incPrint(){const el=document.getElementById('rep');el.innerHTML=incReportHTML(I,true);hydrate(el);await new Promise(r=>setTimeout(r,900));document.body.classList.add('printing-inc');window.print()}
+window.addEventListener('afterprint',()=>document.body.classList.remove('printing-inc'));
+function incDoc(){const h='<html><head><meta charset="utf-8"><style>'+REPCSS+'</style></head><body>'+incReportHTML(I,false)+'</body></html>';
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+h],{type:'application/msword'}));a.download=(I.ref||'Incident_report')+'.doc';a.click();audit('EXPORT',I.ref||'','Incident .doc');save()}
+function incWA(){const c=codeOf(I.code),t=`*${c.n} - ${c.t}*\nReport: ${I.ref||'(not saved)'}\nLocation: ${incLoc(I)}\nStart: ${fmt(I.startAt)}\n${I.clearedAt?'Cleared: '+fmt(I.clearedAt)+' ('+incDur(I)+')':'Status: '+I.status}\n\n${(I.narrative||genNarrative(I)).slice(0,700)}`;
+ window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank','noopener')}
+
+
+function incConsole(){const L=db.incidents;if(!L.length)return '';const byCode={};CODES.forEach(c=>{const n=L.filter(i=>i.code===c.id).length;if(n)byCode[c.id]=n});
+ return `<div class="card"><h3>Emergency codes</h3><div class="sqrow">${Object.keys(byCode).map(id=>{const c=codeOf(id);return `<button type="button" class="sqbtn" style="--cc:${c.bg||c.c};width:auto;min-width:64px;padding:0 12px;color:${id==='white'||id==='silver'||id==='yellow'?'#10141b':'#fff'}" onclick="INCF.code='${id}';INCTAB='reg';go('codes')" aria-label="${c.n}: ${byCode[id]} reports">${byCode[id]}</button>`}).join('')}</div><div class="mut" style="margin-top:8px">${L.length} report(s) in total · ${L.filter(i=>incOpenStatus(i.status)).length} active now</div></div>`}
 
 /* ===== Boot ===== */
 window.addEventListener('online',()=>{if(me)pollOnce()});
