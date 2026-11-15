@@ -3,8 +3,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Safety Console</title>
 <meta name="theme-color" content="#0a0d12">
+<script>try{if(localStorage.getItem("sc_lang")==="ar"){document.documentElement.lang="ar";document.documentElement.dir="rtl"}}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
 <style>
 :root{color-scheme:dark;--bg:#0a0d12;--ink:#e8edf4;--mut:#8b97a8;--line:rgba(255,255,255,.085);--line2:rgba(255,255,255,.15);--pri:#5cc8ff;--crit:#ff5a5f;--high:#ff8a3d;--med:#f0b429;--low:#3ddc97;--ok:#3ddc97;--r:18px;
 --fd:'Sora',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;--fb:'Manrope',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
@@ -147,6 +148,113 @@ button.chip.on{color:#05141d;background:linear-gradient(180deg,#b4e7ff,#4db9f0);
 }
 
 .actrow{display:flex;align-items:center;gap:12px;margin:8px 0}.actrow>span:not(.sq){flex:1;min-width:0}.actrow>button{flex:none;min-width:0;width:auto;padding:0 16px}.actrow .sq.lg{width:34px;height:34px}
+
+/* ===== v3 visual layer ===== */
+@property --p{syntax:'<number>';inherits:true;initial-value:0}
+@property --ang{syntax:'<angle>';inherits:false;initial-value:0deg}
+:root{--chrome:linear-gradient(145deg,rgba(255,255,255,.34),rgba(255,255,255,.05) 38%,rgba(255,255,255,.14) 70%,rgba(255,255,255,.04))}
+/* titanium edge on glass: bevelled gradient border */
+.card,.kpi div,button.codetile,.cat{position:relative;border:1px solid transparent;
+ background:linear-gradient(180deg,rgba(30,38,50,.82),rgba(17,22,30,.78)) padding-box,var(--chrome) border-box}
+.cat.on{background:linear-gradient(180deg,rgba(92,200,255,.26),rgba(92,200,255,.07)) padding-box,linear-gradient(145deg,rgba(150,225,255,.95),rgba(92,200,255,.3)) border-box}
+.card::after,.kpi div::after,button.codetile::after,.cat::after,.hero::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s;
+ background:radial-gradient(280px circle at var(--mx,50%) var(--my,-30%),rgba(160,225,255,.13),transparent 62%)}
+@media (hover:hover){.card:hover::after,.kpi div:hover::after,button.codetile:hover::after,.cat:hover::after,.hero:hover::after{opacity:1}}
+button.codetile::after{left:0;top:0;width:auto;height:auto;transform:none;display:block}
+header{background:repeating-linear-gradient(90deg,rgba(255,255,255,.03) 0 1px,transparent 1px 3px),linear-gradient(180deg,rgba(40,50,64,.9),rgba(14,18,25,.82));border-bottom:1px solid rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(0,0,0,.5),0 12px 30px rgba(0,0,0,.45)}
+nav{background:repeating-linear-gradient(90deg,rgba(255,255,255,.03) 0 1px,transparent 1px 3px),linear-gradient(180deg,rgba(48,58,74,.9),rgba(14,18,25,.94))}
+h2{background:linear-gradient(180deg,#fff,#9fb0c6);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* header tools */
+.htools{display:flex;align-items:center;gap:10px}
+button.lang{min-height:32px;padding:3px 12px;border-radius:99px;font-size:12.5px;font-weight:700;color:#d7e6f5;background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
+button.lang::after{display:none}
+.authcard button.lang{position:fixed;top:calc(14px + env(safe-area-inset-top));inset-inline-end:14px;z-index:5}
+/* status hero */
+.hero{--hc:var(--low);position:relative;display:grid;grid-template-columns:auto 1fr;gap:6px 18px;align-items:center;padding:18px;margin:2px 0 14px;border-radius:24px;border:1px solid transparent;overflow:hidden;
+ background:radial-gradient(520px 220px at 0% 0%,color-mix(in srgb,var(--hc) 22%,transparent),transparent 70%) padding-box,linear-gradient(180deg,rgba(32,40,53,.9),rgba(14,18,25,.9)) padding-box,var(--chrome) border-box;
+ box-shadow:0 24px 50px -24px rgba(0,0,0,.8),0 0 60px -30px var(--hc)}
+.hero.at{--hc:var(--high)}.hero.em{--hc:var(--crit);animation:emglow 2.2s ease-in-out infinite}
+@keyframes emglow{50%{box-shadow:0 24px 50px -24px rgba(0,0,0,.8),0 0 70px -6px var(--hc)}}
+.beacon{position:relative;width:104px;height:104px}.beacon svg{width:100%;height:100%;overflow:visible}
+.beacon .b1{fill:none;stroke:color-mix(in srgb,var(--hc) 55%,#fff 0%);stroke-width:1.6;stroke-dasharray:2 5;opacity:.7;transform-origin:60px 60px;animation:spin 28s linear infinite}
+.beacon .b2{fill:rgba(255,255,255,.025);stroke:rgba(255,255,255,.16);stroke-width:1}.beacon .b3{fill:var(--hc);filter:drop-shadow(0 0 8px var(--hc))}
+.beacon .sweep{animation-duration:4.5s;opacity:.9}
+.beacon .core{position:absolute;inset:0;margin:auto;width:24px;height:24px;border-radius:50%;box-shadow:0 0 0 0 var(--hc);animation:ping 2.4s cubic-bezier(.2,.6,.3,1) infinite}
+@keyframes ping{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--hc) 60%,transparent)}80%,100%{box-shadow:0 0 0 30px transparent}}
+.hmain small,.hside small{display:block;color:var(--mut);font-size:12.5px;font-weight:600}.hmain b{display:block;font:600 34px/1.1 var(--fd);letter-spacing:-.02em;margin:2px 0 4px}.hmain span{color:#b7c3d3;font-size:13.5px}
+.hside{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:end;border-top:1px solid var(--line);padding-top:12px;margin-top:4px}
+.spark{width:100%;height:56px}.spark .sl{fill:none;stroke:#8fdcff;stroke-width:2.2;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:0}
+#app.enter .spark .sl{animation:draw 1.3s cubic-bezier(.3,.7,.2,1) both}.spark .sd{fill:#dff6ff;filter:drop-shadow(0 0 6px #5cc8ff)}
+@keyframes draw{from{stroke-dashoffset:1}}
+.hmeta{display:grid;gap:6px;text-align:end;font-variant-numeric:tabular-nums}.hmeta b{font:600 17px var(--fd)}.hmeta time{font:600 17px var(--fd);letter-spacing:.02em;color:#dff4ff}
+@media (min-width:760px){.hero{grid-template-columns:auto 1.1fr 1.2fr;padding:22px 26px}.hside{grid-column:auto;border-top:0;border-inline-start:1px solid var(--line);padding:0 0 0 22px;margin:0}.beacon{width:124px;height:124px}.hmain b{font-size:42px}}
+/* ring KPI tiles */
+.kpi div{overflow:hidden}.kpi div::before{content:"";position:absolute;top:12px;inset-inline-end:12px;width:40px;height:40px;border-radius:50%;
+ background:conic-gradient(var(--rc,var(--pri)) calc(var(--p)*1%),rgba(255,255,255,.09) 0);-webkit-mask:radial-gradient(circle,transparent 58%,#000 61%);mask:radial-gradient(circle,transparent 58%,#000 61%);filter:drop-shadow(0 0 6px color-mix(in srgb,var(--rc,var(--pri)) 60%,transparent))}
+.kpi .r{--rc:var(--crit)}#app.enter .kpi div::before{animation:ringin 1.1s cubic-bezier(.2,.8,.2,1) both}@keyframes ringin{from{--p:0}}
+.kpi small{display:block;padding-inline-end:46px;min-height:32px}
+/* sign-in stage */
+.authwrap{position:relative;overflow:hidden}.authcard{position:relative;z-index:2}
+.stage{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.stage .aur{position:absolute;width:62vmax;height:62vmax;border-radius:50%;filter:blur(70px);opacity:.5;will-change:transform}
+.stage .a1{top:-26vmax;inset-inline-start:-14vmax;background:radial-gradient(circle,rgba(92,200,255,.55),transparent 62%);animation:drift 22s ease-in-out infinite alternate}
+.stage .a2{bottom:-30vmax;inset-inline-end:-18vmax;background:radial-gradient(circle,rgba(132,104,255,.42),transparent 62%);animation:drift 28s ease-in-out infinite alternate-reverse}
+@keyframes drift{to{transform:translate3d(9vmax,6vmax,0) scale(1.12)}}
+.stage .floor{position:absolute;inset-inline:-30%;bottom:-8%;height:62%;transform:perspective(520px) rotateX(62deg);transform-origin:50% 100%;
+ background:linear-gradient(rgba(92,200,255,.22) 1px,transparent 1px) 0 0/100% 46px,linear-gradient(90deg,rgba(92,200,255,.22) 1px,transparent 1px) 0 0/46px 100%;-webkit-mask:linear-gradient(180deg,transparent,#000 55%,transparent);mask:linear-gradient(180deg,transparent,#000 55%,transparent);animation:floor 3.2s linear infinite}
+@keyframes floor{to{background-position:0 46px,0 0}}
+.stage .ecg{position:absolute;inset-inline:0;top:9%;width:100%;height:170px;opacity:.7}
+.ecg path{fill:none;stroke:#5cc8ff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:380 1000;animation:ecg 5.5s linear infinite;filter:drop-shadow(0 0 8px #5cc8ff)}
+@keyframes ecg{from{stroke-dashoffset:380}to{stroke-dashoffset:-1000}}
+.authcard .sentinel{width:148px;height:148px;position:relative}
+.authcard .sentinel::before{content:"";position:absolute;inset:-14px;border-radius:50%;border:1px dashed rgba(143,220,255,.35);animation:spin 40s linear infinite reverse}
+.authcard .sentinel::after{content:"";position:absolute;inset:-26px;border-radius:50%;border:1px solid rgba(143,220,255,.12)}
+.authcard h2{font-size:30px;letter-spacing:-.02em;background:linear-gradient(180deg,#fff 10%,#a9b8cc 60%,#7b8a9e);-webkit-background-clip:text;background-clip:text}
+.authcard>.card{background:linear-gradient(180deg,rgba(26,33,45,.8),rgba(12,16,22,.84)) padding-box,conic-gradient(from var(--ang),rgba(255,255,255,.08),rgba(92,200,255,.9) 12%,rgba(255,255,255,.08) 30%,rgba(255,255,255,.2) 62%,rgba(255,255,255,.08)) border-box;animation:edge 9s linear infinite;box-shadow:0 40px 80px -30px rgba(0,0,0,.9),0 0 80px -40px #5cc8ff}
+@keyframes edge{to{--ang:360deg}}
+@supports (backdrop-filter:blur(1px)){.authcard>.card{backdrop-filter:blur(18px) saturate(1.3);-webkit-backdrop-filter:blur(18px) saturate(1.3)}}
+/* boot sequence */
+#boot{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:radial-gradient(700px 500px at 50% 40%,rgba(92,200,255,.14),transparent 70%),#06080c;animation:fade .25s both}
+#boot.out{opacity:0;transition:opacity .26s}
+#boot .bw{width:min(86vw,330px);text-align:center}#boot .sentinel{width:120px;height:120px;margin:0 auto 12px}
+#boot .bwel{font:600 22px var(--fd);margin-bottom:16px;background:linear-gradient(180deg,#fff,#9fb0c6);-webkit-background-clip:text;background-clip:text;color:transparent}
+#boot ul{list-style:none;margin:0 0 16px;padding:0;text-align:start;display:grid;gap:9px}
+#boot li{display:flex;align-items:center;gap:10px;color:#9fb0c6;font-size:13.5px;opacity:0;animation:fade .3s var(--d) forwards}
+#boot li i{width:16px;height:16px;border-radius:50%;border:1.5px solid rgba(92,200,255,.5);position:relative;flex:none;animation:tick .01s calc(var(--d) + .3s) forwards}
+@keyframes tick{to{background:#3ddc97;border-color:#3ddc97;box-shadow:0 0 12px #3ddc97}}
+#boot .bbar{height:3px;border-radius:9px;background:rgba(255,255,255,.1);overflow:hidden}#boot .bbar i{display:block;height:100%;background:linear-gradient(90deg,#2c9fdc,#9be0ff);box-shadow:0 0 14px #5cc8ff;transform-origin:left;animation:fill 1.5s cubic-bezier(.4,.1,.2,1) both}
+@keyframes fill{from{transform:scaleX(0)}}
+/* voice typing */
+.mic-host{position:relative;display:block}
+.mic-host>input,.mic-host>textarea{padding-inline-end:84px}
+.mic-tools{position:absolute;inset-inline-end:6px;top:6px;display:flex;gap:5px;align-items:center}.mic-host.ta .mic-tools{top:8px}
+button.mic,button.mic-lang{min-height:0;border-radius:50%;padding:0;box-shadow:none}
+button.mic{width:34px;height:34px;color:#dff4ff;background:linear-gradient(180deg,rgba(92,200,255,.3),rgba(92,200,255,.1));border:1px solid rgba(92,200,255,.5)}
+button.mic-lang{width:30px;height:30px;font-size:11px;font-weight:700;color:#9fb0c6;background:rgba(255,255,255,.07);border:1px solid var(--line2)}
+button.mic::after,button.mic-lang::after{display:none}
+button.mic.on{color:#fff;background:linear-gradient(180deg,#ff8e92,#d92f34);border-color:rgba(255,255,255,.5);animation:micpulse 1.2s ease-out infinite}
+@keyframes micpulse{0%{box-shadow:0 0 0 0 rgba(255,90,95,.6)}100%{box-shadow:0 0 0 14px rgba(255,90,95,0)}}
+.mic-host.live>input,.mic-host.live>textarea{border-color:rgba(255,90,95,.7);box-shadow:0 0 0 3px rgba(255,90,95,.16)}
+/* Arabic / right-to-left */
+html[lang=ar]{--fd:'IBM Plex Sans Arabic','Sora',system-ui,'Segoe UI',Tahoma,sans-serif;--fb:'IBM Plex Sans Arabic','Manrope',system-ui,'Segoe UI',Tahoma,sans-serif}
+html[lang=ar] *{letter-spacing:0!important}html[lang=ar] body{line-height:1.62}
+html[dir=rtl] th,html[dir=rtl] td{text-align:right}
+html[dir=rtl] .authcard .card{text-align:right}
+html[dir=rtl] button.codetile{text-align:right;align-items:flex-start;padding:14px 18px 12px 12px}html[dir=rtl] button.codetile::before{left:auto;right:0}
+html[dir=rtl] button.chip{text-align:right}
+html[dir=rtl] .codebar .timer{margin-left:0;margin-right:auto;text-align:left}
+html[dir=rtl] .hist{border-left:0;padding-left:0;border-right:2px solid rgba(92,200,255,.5);padding-right:12px}
+html[dir=rtl] .legend b{margin-left:0;margin-right:4px}html[dir=rtl] .bar i{transform-origin:right}
+html[dir=rtl] .spark{transform:scaleX(-1)}
+html[dir=rtl] nav button svg.flip{transform:scaleX(-1)}
+@media (min-width:1000px){html[dir=rtl] main{padding-left:16px;padding-right:108px}html[dir=rtl] nav{left:auto;right:18px}}
+html[dir=rtl] input[type=email],html[dir=rtl] input[type=password],html[dir=rtl] input[type=date],html[dir=rtl] input[type=datetime-local],html[dir=rtl] #le_m,html[dir=rtl] #lp{direction:ltr;text-align:right}
+html[dir=rtl] .hmeta{text-align:start}
+html[dir=rtl] .toast{left:50%}
+@media print{.stage,#boot,.hero,.mic-tools{display:none!important}.card,.kpi div{background:none!important}.card::after,.kpi div::after{display:none}h2{-webkit-text-fill-color:#000;background:none!important}.kpi div::before{display:none}}
+@media (prefers-reduced-motion:reduce){.stage .floor,.ecg path,.hero.em,.beacon .core{animation:none!important}}
+
+input[type=datetime-local],input[type=date]{font-size:14px;padding-inline:10px;min-width:0}
 </style></head><body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <linearGradient id="tg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6f9fc"/><stop offset=".5" stop-color="#9aa8ba"/><stop offset="1" stop-color="#5a687b"/></linearGradient>
@@ -293,7 +401,7 @@ async function doPw(){if(np.value.length<8||np.value!==np2.value)return alert('P
 /* ===== Login / connection screens ===== */
 const SENT='<div class="sentinel"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="52" fill="none" stroke="url(#tg)" stroke-width="3"/><circle cx="60" cy="60" r="41" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.14)"/><g class="sweep"><path d="M60 60 L60 8 A52 52 0 0 1 104 34 Z" fill="url(#sg)"/></g><path d="M60 33 L85 45 V67 C85 82 73 90 60 96 C47 90 35 82 35 67 V45 Z" fill="rgba(10,13,18,.65)" stroke="url(#tg)" stroke-width="3" stroke-linejoin="round"/><path d="M45 62 H54 L59 51 L65 72 L69 62 H75" stroke="#5cc8ff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
 function loginView(){const c=backendCfg();
- const wrap=inner=>`<div class="authwrap"><div class="authcard">${SENT}<h2 class="metal">Safety Console</h2><div class="sub">Staff complaints and emergency code reports</div>${inner}</div></div>`;
+ const wrap=inner=>`<div class="authwrap"><div class="stage" aria-hidden="true"><i class="aur a1"></i><i class="aur a2"></i><div class="floor"></div><svg class="ecg" viewBox="0 0 1000 150" preserveAspectRatio="none"><path pathLength="1000" d="M0 80 H300 l20 0 l12 -10 l12 10 H400 l14 8 l18 -70 l22 100 l14 -38 H560 l12 -12 l14 12 H1000"/></svg></div><div class="authcard">${langBtn()}${SENT}<h2 class="metal">Safety Console</h2><div class="sub">Staff complaints and emergency code reports</div>${inner}</div></div>`;
  if(!c)return wrap(`<div class="card" style="margin-top:18px"><h3>Connect to the shared database</h3>
  <div class="info">One-time setup on this device. Paste the Project URL and the <b>anon / publishable</b> key from Supabase (Project Settings → API). Never paste a secret or service_role key here.</div>
  <label>Project URL</label><input id="su" placeholder="https://xxxx.supabase.co"><label>Anon / publishable key</label><textarea id="sk"></textarea>
@@ -320,7 +428,7 @@ async function doLogin(){const em=le_m.value.trim(),pw=lp.value,err=document.get
  try{localStorage.setItem('sc_last_email',em)}catch(e){}
  try{const e=await startSession(data.user);if(e){err.textContent=e;return}}
  catch(x){err.textContent='Signed in, but the data could not be loaded: '+(x.message||x);try{await sb.auth.signOut()}catch(y){}return}
- loginMsg='';go('home')}
+ loginMsg='';await bootSeq();go('home')}
 
 /* ===== Risk suggestion ===== */
 function findSub(catId,sub){return catOf(catId).subs.find(s=>s.n===sub)}
@@ -357,7 +465,7 @@ function render(){const app=document.getElementById('app');
  if(!me){app.className='';app.innerHTML=loginView();return}
  const v={home:homeView,list:listView,new:newView,detail:detailView,reports:reportsView,admin:adminView,wa:waView,codes:codesView,inc:incView}[V.n]||homeView;
  const enter=ANIM;ANIM=false;app.className=enter?'enter':'';
- app.innerHTML=`<header><div class="brand">${LOGO}<div><b>Safety Console</b><small>${esc(me.name)} · ${me.role}</small></div></div><div class="sync ${SYNC}" id="sync">${syncText()}</div></header><main>${V.n==='home'?incActiveBanner():''}${v()}</main>${navHTML()}`;
+ app.innerHTML=`<header><div class="brand">${LOGO}<div><b>Safety Console</b><small>${esc(me.name)} · ${me.role}</small></div></div><div class="htools">${langBtn()}<div class="sync ${SYNC}" id="sync">${syncText()}</div></div></header><main>${V.n==='home'?incActiveBanner():''}${v()}</main>${navHTML()}`;
  if(V.n==='new'&&can())updForm();hydrate();if(enter)animateNums()}
 
 /* ===== Metrics ===== */
@@ -390,13 +498,13 @@ function filterBar(){return `<div class="card noprint"><div class="row">
 
 /* ===== Home / Master Console ===== */
 function homeView(){const L=filtered(),open=L.filter(isOpen),od=L.filter(isOverdue),unres=open.filter(c=>['critical','high'].includes(c.priority));
- const k=(n,l,f,cls)=>`<div class="${cls||''}" onclick="${f}"><b>${n}</b><small>${l}</small></div>`;
+ const k=(n,l,f,cls)=>`<div class="${cls||''}" style="--p:${Math.min(100,Math.round(n/Math.max(L.length,1)*100))}" onclick="${f}"><b>${n}</b><small>${l}</small></div>`;
  const cat=id=>L.filter(c=>c.cat===id).length;
  const smokeRepeat=L.filter(c=>c.cat==='smoke'&&(c.recurring==='yes'||(c.links||[]).length||c.sub==='Repeated smoking violation')).length;
  const exitSigns=L.filter(c=>c.cat==='exit'&&/sign/i.test(c.sub)).length,lightDef=L.filter(c=>c.cat==='light'&&/light|illum/i.test(c.sub)).length,chair=L.filter(c=>/evacuation chair/i.test(c.sub)).length;
  const awaiting=open.filter(c=>c.status==='Awaiting repair or other action'||c.status==='Corrective action assigned');
  const rec=Object.entries(countBy(L,c=>c.sub+' @ '+loc(c))).filter(e=>e[1]>1);
- return `<h2>Master Console</h2>${filterBar()}${incConsole()}
+ return `${heroHTML()}<h2>Master Console</h2>${filterBar()}${incConsole()}
  ${od.length?`<div class="alert">⚠ ${od.length} overdue corrective action(s). <a href="#" onclick="FLT.st='overdue';go('list');return false">View</a></div>`:''}
  ${unres.length?`<div class="warn"><b>${unres.length}</b> critical/high-priority deficiency(ies) unresolved.</div>`:''}
  <div class="kpi">${k(L.length,'Total received',"FLT.st='';go('list')")}${k(open.length,'Open',"FLT.st='open';go('list')")}${k(od.length,'Overdue',"FLT.st='overdue';go('list')",od.length?'r':'')}${k(L.filter(c=>c.history.some(h=>h.to==='Reopened')).length,'Reopened',"FLT.st='reopened';go('list')")}${k(unres.length,'Critical/High unresolved',"FLT.st='unres';go('list')",unres.length?'r':'')}${k(L.filter(c=>c.status==='Closed').length,'Closed','FLT.st=\'Closed\';go(\'list\')')}</div>
@@ -425,7 +533,7 @@ function newView(){if(!F)F=blankForm();if(!can())return '<div class="warn">Your 
  <div id="subwrap">${F.cat?`<label>2. Subcategory</label><select id="f_sub" onchange="F.sub=this.value;updForm()"><option value="">Select…</option>${catOf(F.cat).subs.map(s=>`<option ${F.sub===s.n?'selected':''}>${esc(s.n)}</option>`).join('')}</select>`:''}</div>
  ${F.cat==='other'?`<label>Describe the new complaint type (mandatory)</label><input value="${esc(F.otherDesc)}" oninput="F.otherDesc=this.value">`:''}
  <div id="alertbox"></div>
- <label>3. Description (English)</label><textarea id="f_desc" oninput="F.desc=this.value;updForm()" placeholder="What was reported?">${esc(F.desc)}</textarea>
+ <label>3. Description (English or Arabic)</label><textarea id="f_desc" oninput="F.desc=this.value;updForm()" placeholder="What was reported?">${esc(F.desc)}</textarea>
  <div class="row"><div><label>Building</label><input list="dl_b" value="${esc(F.building)}" oninput="F.building=this.value;updForm()"></div><div><label>Floor</label><input list="dl_f" value="${esc(F.floor)}" oninput="F.floor=this.value;updForm()"></div></div>
  <div class="row"><div><label>Unit / department area</label><input list="dl_u" value="${esc(F.unit)}" oninput="F.unit=this.value;updForm()"></div><div><label>Room / corridor / exact spot</label><input value="${esc(F.room)}" oninput="F.room=this.value;updForm()"></div></div>
  ${ds('dl_b','building')}${ds('dl_f','floor')}${ds('dl_u','unit')}
@@ -614,7 +722,7 @@ function reportsView(){const [s,e]=range(),L=repList(),conf=L.filter(c=>CONFIRME
  return `<h2>Reports</h2><div class="card noprint"><div class="row"><div><label>Period</label><select onchange="RP.period=this.value;render()">${['daily','weekly','monthly','quarterly','yearly'].map(p=>`<option ${RP.period===p?'selected':''}>${p}</option>`).join('')}</select></div>
  <div><label>Reference date</label><input type="date" value="${RP.anchor}" onchange="RP.anchor=this.value;render()"></div></div>
  <p><button onclick="window.print()">🖨 Print / Save as PDF</button> <button class="sec" onclick="exportCSV()">⬇ Spreadsheet (CSV)</button></p></div>
- <div class="card"><h2 style="margin:0">Staff Complaints & Safety Deficiencies Report</h2><div class="mut">${RP.period.toUpperCase()} · ${fmtD(s)} to ${fmtD(e)} · Generated ${fmt(nowISO())} by ${esc(me.name)}</div>
+ <div class="card" data-nt dir="ltr"><h2 style="margin:0">Staff Complaints & Safety Deficiencies Report</h2><div class="mut">${RP.period.toUpperCase()} · ${fmtD(s)} to ${fmtD(e)} · Generated ${fmt(nowISO())} by ${esc(me.name)}</div>
  <h3 style="margin-top:12px">Summary</h3><table><tr><th>Complaints received</th><td>${L.length}</td><th>Closed</th><td>${L.filter(c=>c.status==='Closed').length}</td></tr>
  <tr><th>Confirmed findings</th><td>${conf.length}</td><th>Unverified / under assessment</th><td>${uv.length}</td></tr><tr><th>Not substantiated</th><td>${ns.length}</td><th>Overdue now</th><td>${L.filter(isOverdue).length}</td></tr>
  <tr><th>Critical/High unresolved</th><td>${L.filter(c=>isOpen(c)&&['critical','high'].includes(c.priority)).length}</td><th>Reopened</th><td>${L.filter(c=>c.history.some(h=>h.to==='Reopened')).length}</td></tr>
@@ -912,5 +1020,263 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&me)pollOn
 async function boot(){const c=backendCfg();
  if(c&&initClient(c)){try{const{data}=await sb.auth.getSession();if(data&&data.session){const e=await startSession(data.session.user);if(e)loginMsg=e}}catch(x){loginMsg='Cannot reach the database: '+(x.message||x)}}
  render()}
+/* ===== Arabic dictionary ===== */
+const AR={
+/* shell */
+'Safety Console':'لوحة قيادة السلامة','Staff complaints and emergency code reports':'بلاغات الموظفين وتقارير الرموز الطارئة',
+'Safety Team Sign-in':'تسجيل دخول فريق السلامة','Authorized users only. No registration or guest access.':'للمستخدمين المصرّح لهم فقط. لا يوجد تسجيل جديد ولا دخول كضيف.',
+'Email':'البريد الإلكتروني','Password':'كلمة المرور','Sign in':'تسجيل الدخول','Console':'اللوحة','Complaints':'البلاغات','New':'جديد','Codes':'الرموز','More':'المزيد',
+'Synced':'تمت المزامنة','Saved':'تم الحفظ','Not synced - will retry':'لم تتم المزامنة - ستُعاد المحاولة','Saved on this device - waiting to sync':'محفوظ على هذا الجهاز - بانتظار المزامنة',
+'Syncing…':'جارٍ المزامنة…','Signing in…':'جارٍ تسجيل الدخول…','Offline':'غير متصل',
+'Enter your email and password.':'أدخل البريد الإلكتروني وكلمة المرور.','Sign-in failed. Check your email and password.':'فشل تسجيل الدخول. تحقق من البريد الإلكتروني وكلمة المرور.',
+'Your account is no longer authorized.':'لم يعد حسابك مصرّحاً له.','Not an authorized Safety Team account.':'هذا ليس حساباً مصرّحاً به لفريق السلامة.',
+'Connect to the shared database':'الاتصال بقاعدة البيانات المشتركة','Save and continue':'حفظ ومتابعة','Project URL':'رابط المشروع','Anon / publishable key':'المفتاح العام (anon / publishable)',
+'Cannot load the database library':'تعذّر تحميل مكتبة قاعدة البيانات','Check your internet connection and reload the page.':'تحقق من اتصال الإنترنت ثم أعد تحميل الصفحة.',
+'Change database connection':'تغيير الاتصال بقاعدة البيانات','Log out':'تسجيل الخروج','Change my password':'تغيير كلمة المرور','Change password':'تغيير كلمة المرور','Change':'تغيير',
+'New password (8+ characters)':'كلمة المرور الجديدة (8 أحرف فأكثر)','Confirm':'تأكيد','Password changed.':'تم تغيير كلمة المرور.','Passwords must match and be at least 8 characters.':'يجب أن تتطابق كلمتا المرور وألا تقل عن 8 أحرف.',
+'Cancel':'إلغاء','Close':'إغلاق','Save':'حفظ','Back to codes':'العودة إلى الرموز','← Back':'← رجوع','Add':'إضافة','Enter':'إدخال','Reset':'إعادة ضبط','Search':'بحث','Clear':'مسح','Clear filters':'مسح عوامل التصفية','View':'عرض','Start':'بدء','Activate':'تفعيل','Redo':'إعادة','Discard':'تجاهل','Resume report':'استئناف التقرير',
+'Some changes have not synced yet and will stay on this device until you sign in again. Log out anyway?':'بعض التغييرات لم تتم مزامنتها وستبقى على هذا الجهاز حتى تسجّل الدخول مجدداً. هل تريد تسجيل الخروج؟',
+'Disconnect this device from the current database?':'هل تريد فصل هذا الجهاز عن قاعدة البيانات الحالية؟',
+'Enter a valid Supabase project URL (https://xxxx.supabase.co) and the anon / publishable key.':'أدخل رابط مشروع Supabase صحيحاً (https://xxxx.supabase.co) والمفتاح العام.',
+'That is a SECRET key. Never use it in this app. Use the anon / publishable key.':'هذا مفتاح سري. لا تستخدمه أبداً في هذا التطبيق. استخدم المفتاح العام.',
+/* nav / more */
+'WhatsApp evidence':'أدلة واتساب','Reports':'التقارير','Administration':'الإدارة',
+/* console */
+'Master Console':'اللوحة الرئيسية','From':'من','To':'إلى','Category':'الفئة','Priority':'الأولوية','Status':'الحالة','Officer':'المسؤول','Location contains':'الموقع يحتوي على','All':'الكل',
+'Open (any)':'مفتوح (أي حالة)','Overdue':'متأخر','Critical/High unresolved':'حرج/عالٍ غير محلول','Ever reopened':'أُعيد فتحه سابقاً',
+'Total received':'إجمالي المستلم','Open':'مفتوح','Reopened':'أُعيد فتحه','Closed':'مغلق','Response times':'أزمنة الاستجابة','Average first response:':'متوسط أول استجابة:','· Average resolution:':'· متوسط زمن الحل:',
+'Focus areas':'مجالات التركيز','Smoking reports':'بلاغات التدخين','Repeated smoking':'تدخين متكرر','Unauthorized electrical':'أجهزة كهربائية غير مصرّح بها','Exit sign issues':'مشكلات لوحات المخارج','Emergency lighting':'إنارة الطوارئ','Evacuation chairs':'كراسي الإخلاء','Fire & life safety':'الحريق وسلامة الأرواح','From Nursing':'من التمريض','From Housekeeping':'من التدبير المنزلي','Awaiting maintenance / action':'بانتظار الصيانة / الإجراء',
+'By category':'حسب الفئة','By subcategory':'حسب الفئة الفرعية','By reporting department':'حسب القسم المُبلِّغ','By building / floor / unit':'حسب المبنى / الطابق / الوحدة','By status':'حسب الحالة','By priority':'حسب الأولوية','By building':'حسب المبنى','By location':'حسب الموقع',
+'Recurring deficiencies (same subcategory + location)':'أوجه القصور المتكررة (نفس الفئة الفرعية والموقع)','None detected':'لم يُرصد شيء','No data':'لا توجد بيانات',
+'Counts include unverified complaints; see Reports for confirmed vs unverified separation.':'تشمل الأعداد بلاغات غير مؤكدة؛ راجع التقارير لفصل المؤكد عن غير المؤكد.',
+'overdue corrective action(s).':'إجراء(ات) تصحيحي(ة) متأخر(ة).','critical/high-priority deficiency(ies) unresolved.':'قصور(ات) حرج(ة)/عالي(ة) الأولوية غير محلول(ة).','Overdue now':'متأخر الآن',
+/* list / detail */
+'No complaints match.':'لا توجد بلاغات مطابقة.','OVERDUE':'متأخر','CRITICAL':'حرج','HIGH':'عالٍ','MEDIUM':'متوسط','LOW':'منخفض','UNSET':'غير محدد','Critical':'حرج','High':'عالٍ','Medium':'متوسط','Low':'منخفض','critical':'حرج','high':'عالٍ','medium':'متوسط','low':'منخفض',
+'Not found':'غير موجود','Original text:':'النص الأصلي:','Location':'الموقع','Received':'المستلم','Logged':'سُجّل','Event time':'وقت الحدث','Reported by':'المُبلِّغ','Involved':'المعنيّون','Immediate action':'الإجراء الفوري','Recurring':'متكرر','Responsible dept':'القسم المسؤول','Responsible dept (required)':'القسم المسؤول (مطلوب)','Officer':'المسؤول',
+'Evidence':'الأدلة','History':'السجل','History & audit trail':'السجل ومسار التدقيق','No history yet.':'لا يوجد سجل بعد.','Record history':'سجل التاريخ','Workflow':'سير العمل','Assessment (classification, priority, assignment)':'التقييم (التصنيف والأولوية والإسناد)',
+'Classification':'التصنيف','Classification (your assessment)':'التصنيف (تقييمك)','Save assessment':'حفظ التقييم','Reason for changes (required if priority changes)':'سبب التغيير (مطلوب عند تغيير الأولوية)','Give a reason when changing priority.':'اذكر سببًا عند تغيير الأولوية.','No changes.':'لا توجد تغييرات.',
+'Corrective action':'الإجراء التصحيحي','Corrective action (required)':'الإجراء التصحيحي (مطلوب)','Target date':'التاريخ المستهدف','Target date (required)':'التاريخ المستهدف (مطلوب)','Responsible person':'الشخص المسؤول','Work order ref':'رقم أمر العمل','Closed at':'أُغلق في',
+'Comment (required)':'تعليق (مطلوب)','A comment is required.':'التعليق مطلوب.','Closing requires findings/verification comment':'الإغلاق يتطلب تعليقاً بالنتائج/التحقق',
+'Linked / repeat complaints':'بلاغات مرتبطة / مكررة','Linked to ':'مرتبط بـ ','Link evidence':'ربط الدليل','None attached.':'لا يوجد مرفق.','No evidence attached.':'لا توجد أدلة مرفقة.','No closure evidence attached yet.':'لم تُرفق أدلة الإغلاق بعد.',
+'Closure evidence is required (add a file or text with purpose “Closure”).':'أدلة الإغلاق مطلوبة (أضف ملفاً أو نصاً بغرض «الإغلاق»).','Confirm that verification was performed.':'أكّد أنه تم إجراء التحقق.','I verified the restoration / correction myself or reviewed the evidence':'تحققت بنفسي من الإصلاح/التصحيح أو راجعت الأدلة',
+'Early closure is only allowed when classification is “Not substantiated”.':'الإغلاق المبكر مسموح فقط عندما يكون التصنيف «غير مثبت».','Corrective action, responsible department and target date are required.':'الإجراء التصحيحي والقسم المسؤول والتاريخ المستهدف مطلوبة.',
+'Assess the classification before closing (Assessment section).':'قيّم التصنيف قبل الإغلاق (قسم التقييم).','Record completion evidence (photo or work-order closure) under “Add file” with purpose “Closure”.':'سجّل دليل الإنجاز (صورة أو إغلاق أمر العمل) ضمن «إضافة ملف» بغرض «الإغلاق».',
+'closed earlier - possible ineffective corrective action':'أُغلق سابقاً - احتمال عدم فعالية الإجراء التصحيحي','Complaint logged via ':'سُجّل البلاغ عبر ',
+'Original evidence cannot be deleted from this screen.':'لا يمكن حذف الأدلة الأصلية من هذه الشاشة.',
+/* statuses */
+'Initial assessment':'التقييم الأولي','Investigation in progress':'التحقيق جارٍ','Corrective action assigned':'تم إسناد الإجراء التصحيحي','Awaiting repair or other action':'بانتظار الإصلاح أو إجراء آخر','Awaiting Safety Officer verification':'بانتظار تحقق مسؤول السلامة',
+'Unassessed':'غير مُقيَّم','Staff complaint (unverified)':'بلاغ موظف (غير مؤكد)','Safety observation':'ملاحظة سلامة','Confirmed safety deficiency':'قصور سلامة مؤكد','Incident / near miss':'حادث / كاد أن يقع','Urgent hazard':'خطر عاجل','Not substantiated':'غير مثبت','Unverified / under assessment':'غير مؤكد / قيد التقييم',
+'Verbal':'شفهي','Telephone':'هاتفياً','WhatsApp':'واتساب','Other':'أخرى','Channel':'القناة',
+/* new complaint */
+'New complaint / observation':'بلاغ / ملاحظة جديدة','1. Category':'١. الفئة','2. Subcategory':'٢. الفئة الفرعية','3. Description (English or Arabic)':'٣. الوصف (بالعربية أو الإنجليزية)','3. Description (English)':'٣. الوصف (بالإنجليزية)','What was reported?':'ما الذي تم الإبلاغ عنه؟','Select…':'اختر…',
+'Describe the new complaint type (mandatory)':'صف نوع البلاغ الجديد (إلزامي)','Building':'المبنى','Floor':'الطابق','Unit / department area':'الوحدة / منطقة القسم','Room / corridor / exact spot':'الغرفة / الممر / الموقع الدقيق','Reporting department':'القسم المُبلِّغ','Dept':'القسم',
+'More details (optional)':'مزيد من التفاصيل (اختياري)','Complaint received':'وقت استلام البلاغ','Event occurred (if known)':'وقت وقوع الحدث (إن عُرف)','Reporting person (if provided)':'الشخص المُبلِّغ (إن وُجد)','Original text (e.g. Arabic) - preserved as received':'النص الأصلي (مثلاً بالعربية) - يُحفظ كما ورد',
+'Persons / equipment / activities involved':'الأشخاص / المعدات / الأنشطة المعنية','Immediate action taken':'الإجراء الفوري المتخذ','Recurring issue?':'مشكلة متكررة؟','No / unknown':'لا / غير معروف','Yes':'نعم','No':'لا','Assigned Safety Officer':'مسؤول السلامة المُكلَّف','Responsible maintenance / operational department':'قسم الصيانة / التشغيل المسؤول',
+'Photo / screenshot / file':'صورة / لقطة شاشة / ملف','Paste message text':'لصق نص الرسالة','Priority (you must confirm)':'الأولوية (يجب أن تؤكدها)','Save complaint':'حفظ البلاغ','Saving…':'جارٍ الحفظ…',
+'Receipt time and your name are recorded automatically. Classification starts as “Unassessed” until you assess it.':'يُسجَّل وقت الاستلام واسمك تلقائياً. يبدأ التصنيف «غير مُقيَّم» إلى أن تقيّمه.',
+'Select a category and subcategory.':'اختر الفئة والفئة الفرعية.','Enter a description.':'أدخل وصفاً.','Enter at least one location detail.':'أدخل تفصيلاً واحداً على الأقل للموقع.','Confirm a priority (tap the suggested one).':'أكّد الأولوية (اضغط على المقترحة).',
+'The "Other" option requires a description of the new complaint type.':'خيار «أخرى» يتطلب وصف نوع البلاغ الجديد.','Your role is read-only.':'دورك للقراءة فقط.','Read-only role.':'دور للقراءة فقط.','Administrator only.':'للمسؤول فقط.',
+'Cannot reach the database to issue a unique reference number. Check the connection and try again. If this is a critical hazard, act on it now and record it afterwards.':'تعذّر الوصول إلى قاعدة البيانات لإصدار رقم مرجعي فريد. تحقق من الاتصال وحاول مجدداً. إذا كان الخطر حرجاً فتصرّف فوراً وسجّله لاحقاً.',
+'Cannot reach the database to issue the report number. Your entries are kept on this device. Try again when the connection returns. In a live emergency, respond first.':'تعذّر الوصول إلى قاعدة البيانات لإصدار رقم التقرير. إدخالاتك محفوظة على هذا الجهاز. حاول مجدداً عند عودة الاتصال. في حالة الطوارئ الفعلية استجب أولاً.',
+'Suggested priority:':'الأولوية المقترحة:','potentially urgent':'قد تكون عاجلة','Default for selected hazard: ':'الافتراضي للخطر المحدد: ','Keywords in report: ':'كلمات مفتاحية في البلاغ: ','Active smoke/fire/electrical indicator reported':'تم الإبلاغ عن مؤشر دخان/حريق/كهرباء نشط','Recurring issue - raised one level':'مشكلة متكررة - رُفع المستوى درجة','Multiple related failures - possible route impact':'أعطال متعددة مرتبطة - تأثير محتمل على مسار الإخلاء',
+'Consider location, operational impact and available alternative protection before confirming.':'ضع في الاعتبار الموقع والأثر التشغيلي والحماية البديلة المتاحة قبل التأكيد.','★ = suggested.':'★ = مقترح.',
+'IMMEDIATE RESPONSE REQUIRED. Follow the hospital emergency procedure now (activate the applicable emergency code, contact Security / Fire & Safety / the Fire Brigade as required, and notify the responsible manager). Do not wait to complete this record - save it afterwards.':'مطلوب استجابة فورية. اتبع إجراءات الطوارئ بالمستشفى الآن (فعّل رمز الطوارئ المناسب، واتصل بالأمن / الحريق والسلامة / الدفاع المدني حسب الحاجة، وأبلغ المدير المسؤول). لا تنتظر استكمال هذا السجل - احفظه لاحقاً.',
+'IMMEDIATE RESPONSE':'استجابة فورية','Similar previous complaints (':'بلاغات سابقة مشابهة (','Saved on this device as ':'حُفظ على هذا الجهاز برقم ',
+/* evidence */
+'Add file evidence':'إضافة دليل ملف','File (photo, screenshot, PDF)':'الملف (صورة، لقطة شاشة، PDF)','Note (optional)':'ملاحظة (اختياري)','Purpose':'الغرض','Investigation':'التحقيق','Closure / completion evidence':'دليل الإغلاق / الإنجاز','Original report':'البلاغ الأصلي',
+'Paste message / conversation text':'لصق نص الرسالة / المحادثة','Paste copied WhatsApp or email text (original wording is preserved)':'الصق نص واتساب أو البريد المنسوخ (تُحفظ الصياغة الأصلية)','Choose a file.':'اختر ملفاً.','Uploading…':'جارٍ الرفع…','Upload failed: ':'فشل الرفع: ',
+'Could not read the file.':'تعذّرت قراءة الملف.','Could not read the image.':'تعذّرت قراءة الصورة.','Only photos/screenshots and PDF files are permitted.':'يُسمح فقط بالصور/لقطات الشاشة وملفات PDF.','PDF must be under 4 MB.':'يجب أن يقل حجم PDF عن 4 ميغابايت.',
+'📎 Photo / screenshot / file':'📎 صورة / لقطة شاشة / ملف','📝 Paste message text':'📝 لصق نص الرسالة','📎 Add file':'📎 إضافة ملف','📝 Add text':'📝 إضافة نص','Text evidence':'دليل نصي','Pasted text':'نص ملصوق','Pasted conversation':'محادثة ملصوقة','Photo, screenshot or PDF':'صورة أو لقطة شاشة أو PDF','Add photo or file':'إضافة صورة أو ملف','Photos':'الصور','Photos and evidence':'الصور والأدلة',
+/* WhatsApp analysis */
+'WhatsApp / message evidence':'أدلة واتساب / الرسائل','WhatsApp / message text':'نص واتساب / الرسائل','Screenshot (optional)':'لقطة شاشة (اختياري)','Extract details':'استخراج التفاصيل','Extracted (unverified suggestions)':'مُستخرَج (اقتراحات غير موثقة)','Machine extraction unverified':'استخراج آلي غير موثق',
+'Create draft (choose category myself)':'إنشاء مسودة (أختار الفئة بنفسي)','No match - choose manually.':'لا توجد مطابقة - اختر يدوياً.','Draft created. Review and correct every field before saving.':'تم إنشاء المسودة. راجع كل حقل وصحّحه قبل الحفظ.','Or link this evidence to an existing complaint':'أو اربط هذا الدليل ببلاغ قائم','Choose a complaint.':'اختر بلاغاً.','WhatsApp evidence linked':'تم ربط أدلة واتساب',
+'Possible hazard types:':'أنواع الأخطار المحتملة:','Locations mentioned:':'المواقع المذكورة:','Dates/times mentioned:':'التواريخ/الأوقات المذكورة:','Urgent keywords found:':'كلمات عاجلة موجودة:','none found':'لم يُعثر على شيء','Urgent keywords':'كلمات عاجلة','Instructions / commitments:':'التعليمات / الالتزامات:',
+'Arabic text detected. The original is preserved; enter an English description when reviewing.':'تم رصد نص عربي. يُحفظ النص الأصلي؛ يمكنك كتابة الوصف بالعربية أو الإنجليزية عند المراجعة.','Add it from the complaint first.':'أضفه من البلاغ أولاً.','Screenshot text is not read automatically; type or paste it.':'لا يُقرأ نص لقطة الشاشة تلقائياً؛ اكتبه أو الصقه.',
+/* reports */
+'Reference date':'تاريخ المرجع','Period':'الفترة','Report':'التقرير','Complaint register':'سجل البلاغات','Confirmed findings':'النتائج المؤكدة','Suggested vs confirmed':'المقترح مقابل المؤكد','Avg first response':'متوسط أول استجابة','Avg resolution':'متوسط زمن الحل','Target days by priority':'أيام الاستهداف حسب الأولوية','Print or save as PDF':'طباعة أو حفظ PDF','🖨 Print / Save as PDF':'🖨 طباعة / حفظ PDF','⬇ Spreadsheet (CSV)':'⬇ جدول (CSV)','⬇ Export full backup (JSON)':'⬇ تصدير نسخة احتياطية كاملة (JSON)','Export spreadsheet (CSV)':'تصدير جدول (CSV)','No records in period':'لا توجد سجلات في الفترة',
+'Daily':'يومي','Weekly':'أسبوعي','Monthly':'شهري','Quarterly':'ربع سنوي','Semi-annual':'نصف سنوي','Yearly':'سنوي',
+/* admin */
+'Authorized users (exactly five)':'المستخدمون المصرّح لهم (خمسة بالضبط)','Audit log (latest 100)':'سجل التدقيق (آخر 100)','Departments':'الأقسام','Categories & default risk':'الفئات والمخاطر الافتراضية','Backup':'النسخ الاحتياطي','Save settings':'حفظ الإعدادات','Settings saved':'تم حفظ الإعدادات','Role':'الدور','Name':'الاسم','User':'المستخدم','Action':'الإجراء','Detail':'التفصيل','Ref':'المرجع','Date':'التاريخ','Time':'الوقت','Type':'النوع','When':'متى',
+'Add category':'إضافة فئة','New category name':'اسم الفئة الجديدة','Icon (emoji)':'الأيقونة (رمز تعبيري)','New subcategory':'فئة فرعية جديدة','Added category ':'أُضيفت فئة ','Added sub ':'أُضيفت فئة فرعية ','Deactivate':'تعطيل','deactivated':'مُعطَّل','Activate account':'تفعيل الحساب','Entered by':'أدخله',
+'Accounts exist only for the five emails on the database allowlist. New accounts and password resets are done in the Supabase dashboard (Authentication → Users); there is no self-registration.':'الحسابات موجودة فقط للبريد الإلكتروني الخمسة المسموح بها في قاعدة البيانات. تُنشأ الحسابات الجديدة وتُعاد كلمات المرور من لوحة Supabase (Authentication → Users)؛ لا يوجد تسجيل ذاتي.',
+'Data lives in your Supabase project; evidence files are in its private "evidence" bucket (export those from the Supabase dashboard). Export a JSON backup regularly - the free plan has no downloadable backups.':'تُحفظ البيانات في مشروع Supabase الخاص بك؛ وملفات الأدلة في حاوية «evidence» الخاصة (صدّرها من لوحة Supabase). صدّر نسخة JSON احتياطية بانتظام - فالخطة المجانية لا توفر نسخاً احتياطية قابلة للتنزيل.',
+/* modal misc */
+'Cannot reach the database: ':'تعذّر الوصول إلى قاعدة البيانات: ','Signed in, but the data could not be loaded: ':'تم تسجيل الدخول لكن تعذّر تحميل البيانات: ',
+'These records were changed by another user while your edits were unsynced, so your unsynced edits were discarded: ':'تم تغيير هذه السجلات من مستخدم آخر بينما كانت تعديلاتك غير متزامنة، لذلك أُلغيت تعديلاتك غير المتزامنة: ',
+/* codes */
+'Emergency codes':'رموز الطوارئ','Emergency Code Incident Report':'تقرير حادثة رمز طوارئ','Activate a code - tap the color. The start time is recorded now.':'فعّل رمزاً - اضغط على اللون. يُسجَّل وقت البدء الآن.',
+'Registry':'السجل','Dashboard':'لوحة المعلومات','Filter by code':'تصفية حسب الرمز','Report number, location or text':'رقم التقرير أو الموقع أو النص','Download .doc':'تنزيل .doc','Incident .doc':'تقرير .doc','Incident CSV':'جدول الحوادث CSV','Share summary on WhatsApp':'مشاركة الملخص عبر واتساب',
+'No reports yet. Activate a code above to start one.':'لا توجد تقارير بعد. فعّل رمزاً أعلاه للبدء.','Emergency code reports are not enabled in the database yet.':'تقارير رموز الطوارئ غير مفعلة في قاعدة البيانات بعد.','Run the phase 2 SQL script in Supabase (SQL Editor), then reload this page.':'شغّل سكربت SQL للمرحلة 2 في Supabase (SQL Editor) ثم أعد تحميل هذه الصفحة.',
+'Code Red':'الرمز الأحمر','Code Brown':'الرمز البني','Code Pink':'الرمز الوردي','Code Yellow':'الرمز الأصفر','Code Grey':'الرمز الرمادي','Code White':'الرمز الأبيض','Code Orange':'الرمز البرتقالي','Code Black':'الرمز الأسود','Code Silver':'الرمز الفضي','Code Yellow 2':'الرمز الأصفر 2',
+'Fire':'حريق','Utility Service Failure':'تعطل خدمة مرافق','Child Abduction':'اختطاف طفل','External Disaster':'كارثة خارجية','Severe Climate Condition':'ظروف مناخية شديدة','Aggressive Person':'شخص عدواني','Hazardous Materials Spill':'تسرب مواد خطرة','Bomb Threat':'تهديد بقنبلة','Active Shooter':'مطلق نار نشط','External Disaster Response - Pandemic or Epidemic':'الاستجابة للكوارث الخارجية - جائحة أو وباء',
+'Active':'نشط','Cleared':'تم الإنهاء','Not cleared':'لم يُنهَ','Not saved yet':'لم يُحفظ بعد','Start of code':'بدء الرمز','Code cleared':'إنهاء الرمز','Code cleared time':'وقت إنهاء الرمز','Cleared: ':'وقت الإنهاء: ','Duration':'المدة','Average time to clear':'متوسط زمن الإنهاء','Evacuation time':'زمن الإخلاء',
+'Not cleared yet. Use the Code cleared button.':'لم يُنهَ بعد. استخدم زر «إنهاء الرمز».','The code has not been cleared yet.':'لم يتم إنهاء الرمز بعد.','Record Code cleared now?':'تسجيل إنهاء الرمز الآن؟','Code activated and report opened':'تم تفعيل الرمز وفتح التقرير','No cleared reports yet.':'لا توجد تقارير مُنهاة بعد.','No report is open.':'لا يوجد تقرير مفتوح.',
+'Close report':'إغلاق التقرير','Reopen report':'إعادة فتح التقرير','Open report':'فتح التقرير','Close this report? It will be locked.':'إغلاق هذا التقرير؟ سيتم قفله.','Report completed and closed':'اكتمل التقرير وأُغلق','Before closing, complete: ':'قبل الإغلاق أكمل: ','Reason for reopening this report:':'سبب إعادة فتح هذا التقرير:',
+'Closing needs a cleared time, location, risk level, immediate action plan and narrative. A closed report is locked.':'يتطلب الإغلاق وقت الإنهاء والموقع ومستوى الخطر وخطة الإجراء الفوري والسرد. التقرير المغلق مقفل.','This report is closed and locked.':'هذا التقرير مغلق ومقفل.',' An administrator can reopen it.':' يمكن للمسؤول إعادة فتحه.',
+'An unsaved':'تقرير غير محفوظ','is waiting on this device.':'بانتظارك على هذا الجهاز.','Discard this unsaved report?':'تجاهل هذا التقرير غير المحفوظ؟','The saved draft could not be opened.':'تعذّر فتح المسودة المحفوظة.','active now':'نشط الآن','active at':'نشط في','since':'منذ','Record ':'تسجيل ',
+'Reports by code':'التقارير حسب الرمز','Reports per month (last 6)':'التقارير شهرياً (آخر 6 أشهر)','Share of reports':'حصة التقارير','Pie chart':'مخطط دائري','The dashboard fills in as reports are saved.':'تمتلئ لوحة المعلومات مع حفظ التقارير.','Summary':'الملخص','Report number':'رقم التقرير',
+/* incident form */
+'Incident details':'تفاصيل الحادثة','Building ':'المبنى ','Floor ':'الطابق ','Level ':'المستوى ','Level':'المستوى','Level A':'المستوى A','Level B':'المستوى B','Basement':'القبو','Rooftop':'السطح','Room':'الغرفة','Room or exact spot':'الغرفة أو الموقع الدقيق','Unit':'الوحدة','Unit or department':'الوحدة أو القسم','Area':'المنطقة',
+'Notification and dispatch':'الإبلاغ والإيفاد','Received by (name)':'استلمها (الاسم)','Call made by':'أجرى الاتصال','Safety Officer notified by':'أُبلغ مسؤول السلامة بواسطة','Safety Officer then dispatched':'ثم أُوفد مسؤول السلامة','The Safety Officer dispatched: ':'مسؤول السلامة الذي أُوفد: ','Responding Safety Officer':'مسؤول السلامة المستجيب','Phone call':'اتصال هاتفي','Landline':'هاتف أرضي','Radio':'جهاز لاسلكي','Voice':'صوتي','Main':'رئيسي','Alone':'بمفرده',
+'Responders who attended':'المستجيبون الحاضرون','Tick the roles that attended. A name is optional; a ticked role without a name still counts.':'ضع علامة على الأدوار التي حضرت. الاسم اختياري؛ ويُحتسب الدور المحدد بدون اسم.','Employee ID':'الرقم الوظيفي','Name':'الاسم',
+'Duty Manager':'مدير المناوبة','Head Nurse or Department Head (area where the code was activated)':'رئيس التمريض أو رئيس القسم (منطقة تفعيل الرمز)','Nursing Supervisor':'مشرف التمريض','Plumber':'سبّاك','Electrician':'كهربائي','HVAC Technician':'فني تكييف وتهوية','Low Current Technician':'فني تيار منخفض','Fire Alarm Technician':'فني إنذار الحريق','Safety Officer on Duty':'مسؤول السلامة المناوب','Safety Manager':'مدير السلامة','Housekeeping Supervisor':'مشرف التدبير المنزلي','Head Nurse':'رئيس التمريض','Charge Nurse':'ممرضة المسؤولة','Biomedical Engineer':'مهندس طبي حيوي','Security Supervisor':'مشرف الأمن','Security Personnel':'أفراد الأمن','Electrical Engineer':'مهندس كهرباء','Mechanical Engineer':'مهندس ميكانيكا','FMS Director':'مدير إدارة المرافق والسلامة','Project Supervisor':'مشرف المشاريع','Project Manager':'مدير المشاريع','Architect':'مهندس معماري','Others':'آخرون',
+'Fire details':'تفاصيل الحريق','Nature of emergency':'طبيعة الطارئ','What was observed':'ما تمت ملاحظته','Where observed':'مكان الملاحظة','Source identified':'تحديد المصدر','Source identified (once known)':'المصدر (عند معرفته)','Burning smell observed':'رائحة احتراق ملحوظة','Smoke observed':'دخان ملحوظ','Fire actually seen':'نار شوهدت فعلياً','Spark from an electrical device or outlet':'شرارة من جهاز أو مأخذ كهربائي','Smell of burning':'رائحة احتراق','Spark seen':'شرارة شوهدت','Spark-like sound heard':'صوت يشبه الشرارة','Ceiling':'السقف','Wall':'الجدار','Behind a closed door':'خلف باب مغلق','Inside a locked room':'داخل غرفة مقفلة','Electrical device':'جهاز كهربائي','Power supply outlet / plug':'مأخذ / قابس كهرباء','Wire':'سلك','Lighting fixture':'وحدة إنارة',
+'Leak in the ceiling':'تسرب في السقف','Leak from the wall':'تسرب من الجدار','Leak from a broken pipeline':'تسرب من خط أنابيب مكسور','Other utility service failure':'عطل آخر في خدمة المرافق','Pipeline type':'نوع خط الأنابيب','Domestic water':'مياه منزلية','Chilled water':'مياه مبردة','Fire fighting pipeline':'خط مكافحة الحريق','Waste water':'مياه الصرف','R.O. water':'مياه التناضح العكسي',
+'Utility failure details':'تفاصيل عطل المرافق','Nature of failure':'طبيعة العطل','More Code Brown fields will be added later.':'ستُضاف حقول أخرى للرمز البني لاحقاً.','A detailed checklist for this code will be added later.':'ستُضاف قائمة تحقق مفصلة لهذا الرمز لاحقاً.',
+'Revisit':'إعادة تفقد','Revisits':'إعادات التفقد','Revisit ':'إعادة التفقد ','Revisits to check for recurrence':'إعادة التفقد للتأكد من عدم التكرار','Record revisit':'تسجيل إعادة تفقد','Nothing unsafe observed':'لم تُلاحظ أي حالة غير آمنة','Something observed':'تمت ملاحظة شيء','The time is recorded when you choose a result.':'يُسجَّل الوقت عند اختيار النتيجة.',
+'Code Pink details':'تفاصيل الرمز الوردي','Baby recovered?':'هل تم استرجاع الطفل؟','Returned to the parents?':'هل أُعيد إلى والديه؟','Sent to ER for a check-up?':'هل أُرسل إلى الطوارئ للفحص؟','Was a suspected abductor seen?':'هل شوهد مشتبه به بالاختطاف؟','Suspected abductor seen':'شوهد مشتبه به بالاختطاف','Estimated age':'العمر التقديري','Sex':'الجنس','Ethnic race':'العرق','Clothing':'الملابس','Clothing description and color':'وصف الملابس ولونها','Headwear':'غطاء الرأس','Hat':'قبعة','Head cover':'غطاء رأس','Turban':'عمامة','Cap':'كاب','Direction headed':'الاتجاه الذي سلكه','Last seen location':'آخر موقع شوهد فيه','Alone or with an accomplice?':'منفرداً أم مع شريك؟','Alone or with accomplice':'منفرداً أو مع شريك','With an accomplice':'مع شريك','Other identifying information':'معلومات تعريفية أخرى','Male':'ذكر','Female':'أنثى','Arab':'عربي','Asian':'آسيوي','Indian':'هندي','European':'أوروبي','American':'أمريكي',
+'Nurses proceeded to the 4 exits and 5 elevators to stand guard':'توجّه الممرضون إلى المخارج الأربعة والمصاعد الخمسة للحراسة','Other nurses checked all rooms for missing babies':'تفقد ممرضون آخرون جميع الغرف بحثاً عن أي طفل مفقود','Nursery checked for completeness':'تم التحقق من اكتمال عدد الأطفال في الحضانة','Security arrived and relieved the nurses guarding the doors and elevators':'وصل الأمن وحل محل الممرضين الذين يحرسون الأبواب والمصاعد','Guarding and search actions completed':'اكتملت إجراءات الحراسة والبحث','Code Pink is cleared after the baby is returned to the parents.':'يُنهى الرمز الوردي بعد إعادة الطفل إلى والديه.','The baby is not recorded as returned to the parents. Clear Code Pink anyway?':'لم يُسجَّل أن الطفل أُعيد إلى والديه. هل تريد إنهاء الرمز الوردي على أي حال؟',
+'Bomb threat details':'تفاصيل التهديد بقنبلة','How was the threat delivered?':'كيف وصل التهديد؟','Threat received by':'تلقّى التهديد','Caller sex':'جنس المتصل','Caller name (if known)':'اسم المتصل (إن عُرف)','Demeanor':'السلوك','Calm':'هادئ','Angry':'غاضب','Sad':'حزين','Neutral':'محايد','Natural':'طبيعي','Altered (voice-changing app)':'مُغيَّر (تطبيق تغيير الصوت)','Background noise':'ضوضاء في الخلفية','Chatter':'أحاديث','Busy road':'طريق مزدحم','Music':'موسيقى','Train':'قطار','Text message':'رسالة نصية','Suspicious package or baggage':'طرد أو حقيبة مشبوهة','Package description':'وصف الطرد','Package found at':'مكان العثور على الطرد','Where the package was found':'مكان العثور على الطرد','Police contacted':'تم الاتصال بالشرطة','Police contacted?':'هل تم الاتصال بالشرطة؟','Police contacted at':'وقت الاتصال بالشرطة','Bomb squad arrived':'وصلت فرقة المتفجرات','Occupants evacuated':'تم إخلاء الشاغلين','Were building occupants evacuated?':'هل أُخلي شاغلو المبنى؟','Evacuated buildings / floors':'المباني / الطوابق المُخلاة','Buildings and floors evacuated':'المباني والطوابق المُخلاة','Attach a photo under Evidence to share with the authorities.':'أرفق صورة ضمن «الأدلة» لمشاركتها مع الجهات المعنية.','Armed':'مسلح','Armed with a weapon?':'هل هو مسلح بسلاح؟','Age':'العمر','Method':'الطريقة','Threat':'التهديد',
+'Hazardous materials details':'تفاصيل المواد الخطرة','Chemical that leaked or spilled':'المادة الكيميائية المتسربة','Chemical spilled':'المادة المنسكبة','Estimated quantity':'الكمية التقديرية','Quantity':'الكمية','SDS available':'ورقة بيانات السلامة (SDS) متوفرة','Was an SDS available?':'هل كانت ورقة بيانات السلامة متوفرة؟','SDS consulted before cleanup':'تمت مراجعة SDS قبل التنظيف','Was the SDS consulted before cleanup?':'هل روجعت ورقة بيانات السلامة قبل التنظيف؟','Persons affected':'الأشخاص المتأثرون','Sent to ER':'أُرسل إلى الطوارئ','Actions taken':'الإجراءات المتخذة','Actions completed':'الإجراءات المنفذة','Incident photo':'صورة الحادثة','Add photo':'إضافة صورة',
+'Narrative':'السرد','Generate from selections':'إنشاء من الاختيارات','Generated':'تم الإنشاء','Risk assessment':'تقييم المخاطر','Risk assessment and action plans':'تقييم المخاطر وخطط العمل','Risk level':'مستوى الخطر','Risk':'الخطر','Immediate action plan':'خطة الإجراء الفوري','Long-term action plan':'خطة الإجراء بعيد المدى','Insert suggested items':'إدراج العناصر المقترحة','Suggested items fill empty fields only. Review and edit them before closing the report.':'تملأ العناصر المقترحة الحقول الفارغة فقط. راجعها وعدّلها قبل إغلاق التقرير.','Suggested':'مقترح','Dispatched':'أُوفد',
+'Save':'حفظ','Dial':'اتصال','Civil Defense 998':'الدفاع المدني 998','Unified 911':'الرقم الموحد 911','Police 999':'الشرطة 999',
+/* categories */
+'Smoking & Prohibited Activities':'التدخين والأنشطة المحظورة','Unauthorized Electrical Appliances':'الأجهزة الكهربائية غير المصرّح بها','Fire Protection & Life Safety Systems':'أنظمة الحماية من الحريق وسلامة الأرواح','Exit Signs & Evacuation Routes':'لوحات المخارج ومسارات الإخلاء','Emergency Lighting & Evacuation Equipment':'إنارة الطوارئ ومعدات الإخلاء','Housekeeping & Environmental Safety':'التدبير المنزلي والسلامة البيئية','General Hospital Safety':'السلامة العامة بالمستشفى',
+'Smoking, vaping, open flames, fumes':'التدخين والتبخير واللهب المكشوف والأبخرة','Alarm, detection, suppression, extinguishers':'الإنذار والكشف والإطفاء وطفايات الحريق','Exit signs, blocked exits and routes':'لوحات المخارج والمخارج والمسارات المسدودة','Emergency lights, evacuation chairs':'أضواء الطوارئ وكراسي الإخلاء','Waste, spills, floors, leaks, chemicals':'النفايات والانسكابات والأرضيات والتسربات والمواد الكيميائية','Other hospital safety concerns':'مخاوف سلامة أخرى بالمستشفى',
+'Patient smoking inside a patient room':'مريض يدخن داخل غرفة مريض','Patient smoking inside a toilet or bathroom':'مريض يدخن داخل دورة المياه','Patient smoking in staff lounge, corridor, stairwell or other prohibited location':'مريض يدخن في استراحة الموظفين أو الممر أو الدرج أو موقع محظور آخر','Smoking by patient companions or visitors':'تدخين من مرافقي المرضى أو الزوار','Suspected vaping / e-cigarette use':'اشتباه استخدام التبخير / السجائر الإلكترونية','Burning incense, Oud, candles or other unauthorized combustibles':'حرق البخور أو العود أو الشموع أو مواد قابلة للاشتعال أخرى غير مصرّح بها','Repeated smoking violation':'مخالفة تدخين متكررة','Smoke, burning odor or unexplained fumes':'دخان أو رائحة احتراق أو أبخرة غير مفسَّرة','Other prohibited activity presenting fire/safety risk':'نشاط محظور آخر يشكل خطر حريق/سلامة','Appliance left operating unattended':'جهاز تُرك يعمل دون مراقبة',
+'Electric kettle or water heater':'غلاية كهربائية أو سخان مياه','Portable cooking appliance':'جهاز طهي محمول','Unauthorized microwave oven':'ميكروويف غير مصرّح به','Unauthorized heater':'سخان غير مصرّح به','Unauthorized charger or electrical device':'شاحن أو جهاز كهربائي غير مصرّح به','Extension cord or multiplug adapter':'وصلة كهرباء أو محوّل متعدد المآخذ','Damaged or overloaded electrical outlet':'مأخذ كهربائي تالف أو محمّل فوق طاقته','Defective equipment or exposed electrical wiring':'معدات معيبة أو أسلاك كهربائية مكشوفة','Electrical burning smell, sparks, overheating or smoke':'رائحة احتراق كهربائية أو شرر أو سخونة زائدة أو دخان','Electrical appliance in restricted area':'جهاز كهربائي في منطقة مقيّدة','Other unauthorized / unsafe electrical equipment':'معدات كهربائية أخرى غير مصرّح بها / غير آمنة','Unauthorized or unsafe electrical equipment':'معدات كهربائية غير مصرّح بها أو غير آمنة','Electrical':'كهربائي',
+'Fire extinguisher missing, damaged, discharged or inaccessible':'طفاية حريق مفقودة أو تالفة أو مفرغة أو يتعذر الوصول إليها','Fire alarm panel trouble or fault':'عطل أو خلل في لوحة إنذار الحريق','Smoke detector fault or suspected impairment':'عطل في كاشف الدخان أو اشتباه بتعطيله','Sprinkler / fire suppression concern':'ملاحظة على الرشاشات / نظام الإطفاء','Fire door damage or failure to close':'تلف باب الحريق أو عدم إغلاقه','Fire door obstruction or improper operation':'إعاقة باب الحريق أو تشغيله بشكل غير سليم','Manual call point damaged or obstructed':'نقطة النداء اليدوية تالفة أو معاقة','Fire hose reel or fire cabinet obstruction':'إعاقة بكرة خرطوم الحريق أو خزانة الحريق','Fire stopping / penetration sealing deficiency':'قصور في سد الاختراقات / العزل ضد انتشار الحريق','Fire protection impairment without appropriate notification':'تعطيل وسائل الحماية من الحريق دون إشعار مناسب','Fire protection equipment blocked by stored items':'معدات الحماية من الحريق محجوبة بمواد مخزنة','Other fire and life safety deficiency':'قصور آخر في الحريق وسلامة الأرواح',
+'Blocked emergency exit':'مخرج طوارئ مسدود','Locked or inaccessible emergency exit':'مخرج طوارئ مقفل أو يتعذر الوصول إليه','Missing exit sign':'لوحة مخرج مفقودة','Damaged, broken or illegible exit sign':'لوحة مخرج تالفة أو مكسورة أو غير مقروءة','Illuminated exit sign not functioning':'لوحة مخرج مضيئة لا تعمل','Exit sign illumination failure':'تعطل إضاءة لوحة المخرج','Fallen emergency exit sign':'لوحة مخرج طوارئ ساقطة','Exit sign incorrectly positioned or obstructed':'لوحة مخرج في موضع غير صحيح أو معاقة','Obstructed evacuation route':'مسار إخلاء معاق','Corridor obstruction':'إعاقة في الممر','Stairwell obstruction':'إعاقة في الدرج','Corridor or exit blocked by cleaning equipment or waste':'ممر أو مخرج مسدود بمعدات التنظيف أو النفايات','Cleaning trolley obstructing evacuation route':'عربة تنظيف تعيق مسار الإخلاء','Other evacuation route deficiency':'قصور آخر في مسار الإخلاء',
+'Emergency light not illuminating':'ضوء طوارئ لا يضيء','Emergency light battery / backup failure':'تعطل بطارية / احتياطي ضوء الطوارئ','Emergency light damaged':'ضوء طوارئ تالف','Emergency light fallen from mounting':'ضوء طوارئ سقط من مكان التثبيت','Evacuation chair missing':'كرسي إخلاء مفقود','Evacuation chair damaged or defective':'كرسي إخلاء تالف أو معيب','Evacuation chair incorrectly stored':'كرسي إخلاء مخزّن بشكل غير صحيح','Evacuation chair inaccessible or obstructed':'كرسي إخلاء يتعذر الوصول إليه أو معاق','Evacuation chair accessories missing or damaged':'ملحقات كرسي الإخلاء مفقودة أو تالفة','Inadequate evacuation equipment in designated location':'معدات إخلاء غير كافية في الموقع المخصص','Obstructed access to emergency equipment':'إعاقة الوصول إلى معدات الطوارئ','Other emergency preparedness equipment deficiency':'قصور آخر في معدات الاستعداد للطوارئ',
+'Chemical spill or improper chemical storage':'انسكاب مواد كيميائية أو تخزينها بشكل غير سليم','Cleaning chemicals left unattended':'مواد تنظيف كيميائية متروكة دون مراقبة','Wet floor without warning signs':'أرضية مبللة دون لوحات تحذير','Slippery floor or trip hazard':'أرضية زلقة أو خطر تعثر','Water leakage, flooding or ceiling leakage':'تسرب مياه أو فيضان أو تسرب من السقف','Waste accumulation':'تراكم النفايات','Incorrect waste segregation or disposal':'فرز النفايات أو التخلص منها بشكل غير صحيح','Unsafe storage in housekeeping room':'تخزين غير آمن في غرفة التدبير المنزلي','Missing safety labels or warning signs':'ملصقات سلامة أو لوحات تحذير مفقودة','Missing personal protective equipment':'معدات الوقاية الشخصية مفقودة','Unusual odor or suspected chemical exposure':'رائحة غير معتادة أو اشتباه بالتعرض لمواد كيميائية','Other housekeeping-related safety concern':'مخاوف سلامة أخرى تتعلق بالتدبير المنزلي',
+'Unsafe contractor activity':'نشاط مقاول غير آمن','Work performed without required authorization':'عمل نُفّذ دون التصريح المطلوب','Unsafe behavior by patients, visitors or staff':'سلوك غير آمن من مرضى أو زوار أو موظفين','Unsafe storage of materials':'تخزين مواد غير آمن','Elevator malfunction or entrapment concern':'عطل في المصعد أو مخاوف من الاحتجاز','Unusual sound, vibration, heat or burning odor':'صوت أو اهتزاز أو حرارة أو رائحة احتراق غير معتادة','Damaged doors, walls, ceilings, floors or fixtures':'أبواب أو جدران أو أسقف أو أرضيات أو تجهيزات تالفة','Repeated unresolved safety complaint':'بلاغ سلامة متكرر غير محلول','Other safety concern not covered above':'مخاوف سلامة أخرى غير مذكورة أعلاه','Other (not listed)':'أخرى (غير مدرجة)','Other - described below':'أخرى - موصوفة أدناه','New complaint type - description mandatory':'نوع بلاغ جديد - الوصف إلزامي',
+/* departments */
+'Nursing':'التمريض','Housekeeping':'التدبير المنزلي','Maintenance':'الصيانة','Biomedical Engineering':'الهندسة الطبية الحيوية','Security':'الأمن','Fire & Safety':'الحريق والسلامة','Contractor':'مقاول','Carpenter':'نجّار','Biomedical':'الطبية الحيوية',
+/* misc */
+'Voice description':'وصف صوتي','Voice typing':'الكتابة الصوتية','Stop':'إيقاف','Dictation language':'لغة الإملاء','Listening…':'جارٍ الاستماع…','Allow the microphone to use voice typing.':'اسمح باستخدام الميكروفون للكتابة الصوتية.','Voice typing is not supported in this browser. Use the microphone key on your phone keyboard, or open the app in Chrome (Android) or Safari (iPhone).':'الكتابة الصوتية غير مدعومة في هذا المتصفح. استخدم مفتاح الميكروفون في لوحة مفاتيح هاتفك، أو افتح التطبيق في Chrome (أندرويد) أو Safari (آيفون).','No speech heard. Try again.':'لم يُسمع كلام. حاول مجدداً.','Voice typing needs an internet connection.':'الكتابة الصوتية تحتاج إلى اتصال بالإنترنت.',
+'Welcome':'مرحباً','Verifying credentials':'التحقق من بيانات الدخول','Securing the connection':'تأمين الاتصال','Syncing records':'مزامنة السجلات','Loading the console':'تحميل اللوحة','Ready':'جاهز',
+'Normal':'طبيعي','Attention':'يتطلب انتباهاً','Emergency active':'طارئ نشط','Safety status':'حالة السلامة','Last 14 days':'آخر 14 يوماً','Complaints received':'البلاغات المستلمة','No emergency code is active.':'لا يوجد رمز طوارئ نشط.','Local time':'التوقيت المحلي','Incident':'حادثة','Incidents':'الحوادث'
+};
+const AR_MONTHS={Sept:'سبتمبر',Jan:'يناير',Feb:'فبراير',Mar:'مارس',Apr:'أبريل',May:'مايو',Jun:'يونيو',Jul:'يوليو',Aug:'أغسطس',Sep:'سبتمبر',Oct:'أكتوبر',Nov:'نوفمبر',Dec:'ديسمبر'};
+
+/* ===== Language (English / Arabic, right-to-left) ===== */
+let LANG='en';try{LANG=localStorage.getItem('sc_lang')==='ar'?'ar':'en'}catch(e){}
+function applyLang(){document.documentElement.lang=LANG;document.documentElement.dir=LANG==='ar'?'rtl':'ltr'}
+applyLang();
+function setLang(l){LANG=l;try{localStorage.setItem('sc_lang',l)}catch(e){}applyLang();render()}
+const langBtn=()=>`<button type="button" class="lang" onclick="setLang('${LANG==='ar'?'en':'ar'}')" aria-label="Language" lang="${LANG==='ar'?'en':'ar'}">${LANG==='ar'?'EN':'عربي'}</button>`;
+Object.assign(AR,{'Record:':'تسجيل:','Staff nurse':'ممرضة/ممرض','Head nurse':'رئيس التمريض','e.g. Unit 8, Laboratory':'مثال: الوحدة 8، المختبر','IT':'تقنية المعلومات','Paste copied conversation text and/or upload a screenshot. Extraction is rule-based on this device (no paid API). Suggestions are':'الصق نص المحادثة المنسوخ و/أو ارفع لقطة شاشة. يتم الاستخراج بقواعد على هذا الجهاز (دون واجهة مدفوعة). الاقتراحات','- review before saving. Screenshot text is not read automatically; type or paste it.':'- راجعها قبل الحفظ. لا يُقرأ نص لقطة الشاشة تلقائياً؛ اكتبه أو الصقه.',ASSESS:'تقييم',BACKUP:'نسخ احتياطي',CONFIG:'إعدادات',CREATE:'إنشاء',EVIDENCE:'دليل',EXPORT:'تصدير',INC_CREATE:'إنشاء تقرير رمز',INC_UPDATE:'تحديث تقرير رمز',LINK:'ربط',LOGIN:'دخول',LOGOUT:'خروج',PASSWORD_CHANGED:'تغيير كلمة المرور',ROLE:'تغيير الدور',STATUS:'تغيير الحالة','Recurring':'متكرر',daily:'يومي',weekly:'أسبوعي',monthly:'شهري',quarterly:'ربع سنوي',yearly:'سنوي','Language':'اللغة','admin':'مسؤول','officer':'مسؤول سلامة','viewer':'قراءة فقط','Active':'نشط','Reopened':'أُعيد فتحه',
+ ' - tick to link as repeat:':' - ضع علامة للربط كتكرار:','Status:':'الحالة:','· Classification:':'· التصنيف:','(confirmed)':'(مؤكد)','(not a verified finding)':'(ليس نتيجة موثقة)','· Generated':'· أُنشئ','via':'عبر','by':'بواسطة','to':'إلى','report from':'تقرير من','unverified':'غير موثق','→ confirmed':'← مؤكد','Yes':'نعم','No':'لا','-':'-'});
+const PREFIX=Object.keys(AR).filter(k=>/(: |\(| )$/.test(k)&&k.trim().length>3).sort((a,b)=>b.length-a.length);
+const MON=new RegExp('\\b('+Object.keys(AR_MONTHS).join('|')+')\\b','g');
+const ARN=s=>s;
+const PAT=[
+ [/^Bldg ([^ \/,]+)$/,m=>'مبنى '+m[1]],[/^Building ([^ \/,]+)$/,m=>'المبنى '+m[1]],[/^Floor ([^ \/,]+)$/,m=>'الطابق '+m[1]],[/^Fl ([^ \/,]+)$/,m=>'ط '+m[1]],[/^Level ([^ \/,]+)$/,m=>'المستوى '+m[1]],
+ [/^(Complaints|Reports) \((\d+)\)$/,m=>(m[1]==='Complaints'?'البلاغات':'التقارير')+' ('+m[2]+')'],
+ [/^(Code [A-Za-z0-9 ]+?) active at (.+?) since (.+)$/,m=>tr1(m[1])+' نشط في '+tr1(m[2])+' منذ '+tr1(m[3])],
+ [/^(\d+) active now$/,m=>m[1]+' نشط الآن'],[/^Revisit (\d+)$/,m=>'إعادة التفقد '+m[1]],[/^Revisit (\d+) - (.+)$/,m=>'إعادة التفقد '+m[1]+' - '+tr1(m[2])],
+ [/^(\d+) min$/,m=>m[1]+' دقيقة'],[/^(\d+) h (\d+) min$/,m=>m[1]+' س '+m[2]+' د'],[/^([\d.]+) h$/,m=>m[1]+' ساعة'],[/^([\d.]+) d$/,m=>m[1]+' يوم'],
+ [/^(\d+)× ?$/,m=>m[1]+'×'],[/^(\d+) emergency code\(s\) active now$/,m=>m[1]+' رمز طوارئ نشط الآن'],[/^(\d+) critical\/high item\(s\) unresolved or overdue$/,m=>m[1]+' بند حرج/عالٍ غير محلول أو متأخر'],
+ [/^(\d+) overdue corrective action\(s\)\.$/,m=>m[1]+' إجراء(ات) تصحيحي(ة) متأخر(ة).'],
+ [/^Showing (\d+) of (\d+)$/,m=>'عرض '+m[1]+' من '+m[2]],[/^(\d+) file\(s\) attached in the application record\.$/,m=>m[1]+' ملف(ات) مرفق(ة) في سجل التطبيق.'],
+
+ [/^(\d+) reports?$/,m=>m[1]+' تقرير'],[/^(\d+) report\(s\) in total$/,m=>m[1]+' تقرير إجمالاً'],[/^Elapsed (.+)$/,m=>'المدة المنقضية '+m[1]],[/^Duration (.+)$/,m=>'المدة '+tr1(m[1])],
+ [/^Responders who attended \((\d+)\)$/,m=>'المستجيبون الحاضرون ('+m[1]+')'],[/^Record revisit (\d+)$/,m=>'تسجيل إعادة التفقد '+m[1]],[/^Record: (.+)$/,m=>'تسجيل: '+tr1(m[1])],
+ [/^(\d{1,2} \w{3,4} \d{4}, \d{2}:\d{2}) via (.+)$/,m=>tr1(m[1])+' عبر '+tr1(m[2])],[/^(\d{1,2} \w{3,4} \d{4}, \d{2}:\d{2}) by (.+)$/,m=>tr1(m[1])+' بواسطة '+m[2]],
+ [/^(\d{1,2} \w{3,4} \d{4}, \d{2}:\d{2}) · (.+)$/,m=>tr1(m[1])+' · '+tr1(m[2])],
+ [/^- \((.+)\)$/,m=>'- ('+tr1(m[1])+')'],[/^→ (.+)$/,m=>'← '+tr1(m[1])],[/^Suggested (.+) → confirmed (.+)$/,m=>'المقترح '+tr1(m[1].charAt(0)+m[1].slice(1).toLowerCase())+' ← المؤكد '+tr1(m[2].charAt(0)+m[2].slice(1).toLowerCase())],
+ [/^Default target by priority: (.+)$/,m=>'الهدف الافتراضي حسب الأولوية: '+m[1].replace(/critical/,'حرج').replace(/high/,'عالٍ').replace(/medium/,'متوسط').replace(/low/,'منخفض').replace(/(\d+)d/g,'$1 يوم')],
+ [/^(CRITICAL|HIGH|MEDIUM|LOW) ★$/,m=>tr1(m[1])+' ★'],
+ [/^(\p{Extended_Pictographic}️?) (.+) \((\d+)\)$/u,m=>m[1]+' '+tr1(m[2])+' ('+m[3]+')'],[/^(\p{Extended_Pictographic}️?) (.+)$/u,m=>m[1]+' '+tr1(m[2])],
+ [/^Welcome, (.+)$/,m=>'مرحباً، '+m[1]],
+ [/^Priority: (.+)$/,m=>'الأولوية: '+tr1(m[1])],[/^Suggested priority: (.+)$/,m=>'الأولوية المقترحة: '+tr1(m[1])]
+];
+function tr1(t){if(AR[t])return AR[t];
+ if(t.endsWith(':')&&AR[t.slice(0,-1)])return AR[t.slice(0,-1)]+':';
+ for(const [re,f] of PAT){const m=t.match(re);if(m)return f(m)}
+ for(const p of PREFIX){if(t.length>p.length&&t.startsWith(p)){const rest=t.slice(p.length);if(/ $/.test(p)&&(rest.length>40||rest.split(' ').length>3))continue;return AR[p]+tr1(rest)}}
+ if(/^[A-Z][A-Z ]+$/.test(t)&&AR[t.charAt(0)+t.slice(1).toLowerCase()])return AR[t.charAt(0)+t.slice(1).toLowerCase()];
+ const parts=t.split(/( · |, | \/ | → | - |: )/);
+ if(parts.length>1){let ch=false;const o=parts.map((p,i)=>{if(i%2||!p)return p;const r=tr1(p);if(r!==p)ch=true;return r});if(ch)return o.join('')}
+ if(MON.test(t)){MON.lastIndex=0;return t.replace(MON,x=>AR_MONTHS[x])}MON.lastIndex=0;
+ return t}
+function trs(s){if(LANG!=='ar'||s==null)return s;s=String(s);const t=s.trim();if(!t||!/[A-Za-z]{2}/.test(t))return s;const lead=s.slice(0,s.indexOf(t)),trail=s.slice(s.indexOf(t)+t.length);const r=tr1(t);return r===t?s:lead+r+trail}
+const _alert=window.alert.bind(window),_confirm=window.confirm.bind(window);
+window.alert=m=>_alert(trs(m));window.confirm=m=>_confirm(trs(m));
+{const _t=toast;toast=function(m){_t(trs(m))}}
+
+/* ===== Voice typing (browser speech recognition: Arabic and English) ===== */
+const SRC=window.SpeechRecognition||window.webkitSpeechRecognition;
+let VL='auto';try{VL=localStorage.getItem('sc_voice_lang')||'auto'}catch(e){}
+const vCode=()=>VL==='ar'?'ar-SA':VL==='en'?'en-US':(LANG==='ar'?'ar-SA':'en-US');
+const vShort=()=>vCode().startsWith('ar')?'ع':'EN';
+let VOICE=null;
+const MIC='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg>';
+function vFinish(){const V=VOICE;if(!V)return;V.active=false;VOICE=null;try{V.rec.onend=null;V.rec.stop()}catch(e){}V.btn.classList.remove('on');V.btn.setAttribute('aria-pressed','false');document.querySelectorAll('.mic-host.live').forEach(h=>h.classList.remove('live'))}
+function vToggle(field,btn){if(VOICE&&VOICE.field===field){vFinish();return}vFinish();vStart(field,btn)}
+function vStart(field,btn){
+ if(!SRC){toast('Voice typing is not supported in this browser. Use the microphone key on your phone keyboard, or open the app in Chrome (Android) or Safari (iPhone).');return}
+ const rec=new SRC();rec.lang=vCode();rec.interimResults=true;rec.maxAlternatives=1;rec.continuous=!/iPhone|iPad|iPod/.test(navigator.userAgent);
+ const V={rec,field,btn,base:field.value,fin:'',active:true,restarts:0,err:''};VOICE=V;
+ const join=(a,b)=>a&&b?(/\s$/.test(a)?a:a+' ')+b:(a||b);
+ const put=i=>{field.value=join(V.base,join(V.fin,i));field.dispatchEvent(new Event('input',{bubbles:true}))};
+ rec.onstart=()=>{btn.classList.add('on');btn.setAttribute('aria-pressed','true');btn.parentNode.classList.add('live')};
+ rec.onresult=e=>{let it='';for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i];if(r.isFinal)V.fin=join(V.fin,r[0].transcript.trim());else it+=r[0].transcript}put(it.trim())};
+ rec.onerror=e=>{const c=e.error;if(c==='aborted')return;V.err=c;
+  toast(c==='not-allowed'||c==='service-not-allowed'?'Allow the microphone to use voice typing.':c==='network'?'Voice typing needs an internet connection.':c==='no-speech'?'No speech heard. Try again.':'Voice typing is not available for this language on this device.')};
+ rec.onend=()=>{if(VOICE===V&&V.active&&!V.err&&V.restarts<30){V.restarts++;V.base=field.value;V.fin='';try{rec.start();return}catch(x){}}if(VOICE===V)vFinish()};
+ try{rec.start()}catch(e){vFinish()}}
+function vChip(chip){VL=vCode().startsWith('ar')?'en':'ar';try{localStorage.setItem('sc_voice_lang',VL)}catch(e){}
+ document.querySelectorAll('.mic-lang').forEach(c=>c.textContent=vShort());
+ if(VOICE){const f=VOICE.field,b=VOICE.btn;vFinish();vStart(f,b)}}
+function micFor(f){if(f.dataset.mic||f.closest('.noprint,.resp,#boot')||f.hasAttribute('list')||f.readOnly||f.disabled)return;
+ const tag=f.tagName,ty=(f.getAttribute('type')||'text').toLowerCase();
+ if(tag==='INPUT'&&ty!=='text')return;if(!f.parentNode||f.parentNode.classList.contains('mic-host'))return;
+ f.dataset.mic='1';const h=document.createElement('span');h.className='mic-host'+(tag==='TEXTAREA'?' ta':'');
+ f.parentNode.insertBefore(h,f);h.appendChild(f);
+ const b=document.createElement('button');b.type='button';b.className='mic';b.setAttribute('aria-label',trs('Voice typing'));b.setAttribute('aria-pressed','false');b.innerHTML=MIC;b.onclick=()=>vToggle(f,b);
+ const c=document.createElement('button');c.type='button';c.className='mic-lang';c.setAttribute('aria-label',trs('Dictation language'));c.textContent=vShort();c.onclick=()=>vChip(c);
+ const w=document.createElement('span');w.className='mic-tools';w.appendChild(c);w.appendChild(b);h.appendChild(w)}
+
+/* ===== DOM pass: translate, direction, mic ===== */
+function trDom(root){
+ if(root.nodeType===3){if(LANG==='ar'&&root.parentNode&&!/^(SCRIPT|STYLE|TEXTAREA)$/.test(root.parentNode.nodeName)&&!root.parentNode.closest('[data-nt]')){const v=trs(root.nodeValue);if(v!==root.nodeValue)root.nodeValue=v}return}
+ if(root.nodeType!==1)return;
+ const els=[root,...root.querySelectorAll('*')];
+ for(const el of els){
+  if(el.closest&&el.closest('[data-nt]'))continue;
+  if(LANG==='ar'){for(const a of ['placeholder','title','aria-label','alt']){const v=el.getAttribute&&el.getAttribute(a);if(v){const r=trs(v);if(r!==v)el.setAttribute(a,r)}}}
+  const n=el.nodeName;
+  if(n==='TEXTAREA'||(n==='INPUT'&&/^(text|search|)$/.test(el.getAttribute('type')||''))){if(!el.hasAttribute('dir')&&el.value)el.setAttribute('dir','auto');micFor(el)}
+ }
+ if(LANG==='ar'){const w=document.createTreeWalker(root,4,{acceptNode:n=>{const p=n.parentNode;return p&&!/^(SCRIPT|STYLE|TEXTAREA)$/.test(p.nodeName)&&!p.closest('[data-nt]')&&/[A-Za-z]{2}/.test(n.nodeValue)?1:2}});
+  const list=[];while(w.nextNode())list.push(w.currentNode);list.forEach(n=>{const v=trs(n.nodeValue);if(v!==n.nodeValue)n.nodeValue=v})}}
+const _obs=new MutationObserver(ms=>{
+ for(const m of ms){m.addedNodes.forEach(n=>trDom(n))}
+ _obs.takeRecords();
+ if(VOICE&&!document.contains(VOICE.field))vFinish()});
+['app','modal'].forEach(id=>{const el=document.getElementById(id);if(el)_obs.observe(el,{childList:true,subtree:true})});
+
+/* ===== Visual layer: status hero, clock, boot sequence, pointer light ===== */
+function heroHTML(){
+ const act=db.incidents.filter(x=>incOpenStatus(x.status));
+ const att=db.complaints.filter(c=>isOpen(c)&&(['critical','high'].includes(c.priority)||isOverdue(c))).length;
+ const st=act.length?'em':att?'at':'ok';
+ const lab={em:'Emergency active',at:'Attention',ok:'Normal'}[st];
+ const sub=act.length?act.length+' emergency code(s) active now':att?att+' critical/high item(s) unresolved or overdue':'No emergency code is active.';
+ const days=[],t0=new Date();t0.setHours(0,0,0,0);for(let i=13;i>=0;i--)days.push(new Date(t0.getTime()-i*864e5));
+ const cnt=days.map(d=>db.complaints.filter(c=>{const t=new Date(c.submittedAt).getTime();return t>=d.getTime()&&t<d.getTime()+864e5}).length);
+ const mx=Math.max(1,...cnt),W=240,H=56,pts=cnt.map((v,i)=>[i*(W/13),H-4-(v/mx)*(H-12)]);
+ const line=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+ const last=pts[pts.length-1];
+ return `<section class="hero ${st}" aria-label="Safety status">
+ <div class="beacon"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="b1" cx="60" cy="60" r="54"/><circle class="b2" cx="60" cy="60" r="42"/><g class="sweep"><path d="M60 60 L60 8 A52 52 0 0 1 104 34 Z" fill="url(#sg)"/></g><circle class="b3" cx="60" cy="60" r="12"/></svg><i class="core"></i></div>
+ <div class="hmain"><small>Safety status</small><b class="metal">${lab}</b><span>${sub}</span></div>
+ <div class="hside"><svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="spg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5cc8ff" stop-opacity=".38"/><stop offset="1" stop-color="#5cc8ff" stop-opacity="0"/></linearGradient></defs><path d="${line} L${W} ${H} L0 ${H} Z" fill="url(#spg)"/><path class="sl" d="${line}" pathLength="1"/><circle cx="${last[0]}" cy="${last[1]}" r="3.4" class="sd"/></svg>
+ <div class="hmeta"><span><small>Last 14 days</small> <b>${cnt.reduce((a,b)=>a+b,0)}</b></span><span class="clock"><small>Local time</small> <time id="clk"></time></span></div></div></section>`}
+function tickClock(){const el=document.getElementById('clk');if(el)el.textContent=new Date().toLocaleTimeString('en-GB',{timeZone:'Asia/Riyadh',hour12:false})}
+setInterval(tickClock,1000);
+function bootSeq(){return new Promise(res=>{
+ if(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches)return res();
+ const steps=['Verifying credentials','Securing the connection','Syncing records','Loading the console'];
+ const o=document.createElement('div');o.id='boot';o.setAttribute('role','status');
+ o.innerHTML=`<div class="bw">${SENT}<div class="bwel">${trs('Welcome')}${LANG==='ar'?'،':','} ${esc((me&&me.name||'').split(' ')[0])}</div><ul>${steps.map((s,i)=>`<li style="--d:${(i*.34).toFixed(2)}s"><i></i>${trs(s)}</li>`).join('')}</ul><div class="bbar"><i></i></div></div>`;
+ document.body.appendChild(o);let done=false;
+ const end=()=>{if(done)return;done=true;o.classList.add('out');setTimeout(()=>{o.remove();res()},260)};
+ o.onclick=end;setTimeout(end,1650)})}
+document.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;const t=e.target.closest&&e.target.closest('.card,.kpi div,.codetile,.cat,.hero');if(!t)return;const r=t.getBoundingClientRect();t.style.setProperty('--mx',(e.clientX-r.left)+'px');t.style.setProperty('--my',(e.clientY-r.top)+'px')},{passive:true});
+
+document.addEventListener('input',e=>{const t=e.target;if(t&&(t.tagName==='TEXTAREA'||(t.tagName==='INPUT'&&/^(text|search|)$/.test(t.getAttribute('type')||'')))){if(t.value)t.setAttribute('dir','auto');else t.removeAttribute('dir')}},true);
+
 boot();
 </script></body></html>
