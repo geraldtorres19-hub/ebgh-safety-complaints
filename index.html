@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Staff Complaints & Safety Deficiencies</title>
+<style>
+:root{--bg:#f3f5f8;--card:#fff;--ink:#1c2430;--mut:#667085;--line:#e2e6ec;--pri:#0b5cab;--crit:#b42318;--high:#d9480f;--med:#b7791f;--low:#2f855a;--ok:#2f855a}
+*{box-sizing:border-box}body{margin:0;font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:78px}
+header{background:var(--pri);color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5}
+header b{font-size:15px}header small{opacity:.85;display:block;font-size:11px}
+main{padding:12px;max-width:900px;margin:auto}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+h2{font-size:17px;margin:4px 0 10px}h3{font-size:14px;margin:0 0 8px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+label{display:block;font-size:12px;color:var(--mut);margin:8px 0 3px;font-weight:600}
+input,select,textarea{width:100%;padding:10px;border:1px solid #c9d0da;border-radius:8px;font:inherit;background:#fff}
+textarea{min-height:84px}
+button,.btn{background:var(--pri);color:#fff;border:0;border-radius:8px;padding:10px 14px;font:inherit;font-weight:600;cursor:pointer}
+button.sec{background:#e7ecf3;color:var(--ink)}button.dan{background:var(--crit)}button.sm{padding:5px 10px;font-size:13px}
+button:disabled{opacity:.5}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1;min-width:130px}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:6}
+nav button{flex:1;background:none;color:var(--mut);border-radius:0;padding:8px 2px;font-size:11px;font-weight:600}
+nav button.on{color:var(--pri)}nav span{display:block;font-size:20px}
+.badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700;color:#fff}
+.critical{background:var(--crit)}.high{background:var(--high)}.medium{background:var(--med)}.low{background:var(--low)}.gray{background:#667085}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:8px}
+.cat{border:2px solid var(--line);border-radius:10px;padding:8px 4px;text-align:center;background:#fff;font-size:11px;font-weight:600;cursor:pointer}
+.cat.on{border-color:var(--pri);background:#e8f1fb}.cat i{display:block;font-size:24px;font-style:normal}
+.kpi{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.kpi div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px;cursor:pointer}
+.kpi b{font-size:24px;display:block}.kpi small{color:var(--mut)}.kpi .r b{color:var(--crit)}
+.bar{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:13px}.bar span:first-child{width:46%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar i{display:block;height:12px;background:var(--pri);border-radius:6px;min-width:3px}.bar em{font-style:normal;color:var(--mut)}
+.alert{background:#fff1f0;border:2px solid var(--crit);color:#7a1109;border-radius:10px;padding:12px;margin:8px 0;font-weight:600}
+.warn{background:#fffaeb;border:1px solid #f0c36d;border-radius:10px;padding:10px;margin:8px 0;font-size:13px}
+.info{background:#eef6ff;border:1px solid #b9d7f5;border-radius:10px;padding:10px;margin:8px 0;font-size:13px}
+.item{border-bottom:1px solid var(--line);padding:10px 0;cursor:pointer}.item:last-child{border:0}
+.mut{color:var(--mut);font-size:12px}.hist{border-left:3px solid var(--line);padding-left:10px;margin:0 0 10px}
+table{border-collapse:collapse;width:100%;font-size:12px}th,td{border:1px solid var(--line);padding:5px;text-align:left;vertical-align:top}th{background:#f0f3f7}
+.scroll{overflow-x:auto}
+#modal .ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+#modal .box{background:#fff;width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:14px}
+details summary{cursor:pointer;font-weight:600;color:var(--pri);padding:6px 0}
+img.th{max-width:100%;max-height:200px;border-radius:8px;border:1px solid var(--line)}
+@media print{header,nav,.noprint,button{display:none!important}body{background:#fff;padding:0}.card{border:0;padding:0}}
+</style></head><body>
+<div id="app"></div><div id="modal"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+'use strict';
+/* ===== Constants & default configuration ===== */
+const KEY='ebgh_staff_complaints_v1';
+const PR=['critical','high','medium','low'];
+const STAT=['Received','Initial assessment','Investigation in progress','Corrective action assigned','Awaiting repair or other action','Awaiting Safety Officer verification','Closed','Reopened'];
+const NEXT={'Received':['Initial assessment'],'Initial assessment':['Investigation in progress','Corrective action assigned','Closed'],'Investigation in progress':['Corrective action assigned','Closed'],'Corrective action assigned':['Awaiting repair or other action'],'Awaiting repair or other action':['Awaiting Safety Officer verification'],'Awaiting Safety Officer verification':['Closed','Awaiting repair or other action'],'Closed':['Reopened'],'Reopened':['Investigation in progress','Corrective action assigned']};
+const CLS=['Unassessed','Staff complaint (unverified)','Safety observation','Confirmed safety deficiency','Incident / near miss','Urgent hazard','Not substantiated'];
+const CONFIRMED=['Confirmed safety deficiency','Incident / near miss','Urgent hazard'];
+const CHANNELS=['Verbal','Telephone','WhatsApp','Email','Other'];
+const mk=(id,name,icon,desc,subs)=>({id,name,icon,desc,subs:subs.map(s=>({n:s[0],r:s[1],u:!!s[2]}))});
+const DEFAULT_CATS=[
+mk('smoke','Smoking & Prohibited Activities','🚬','Smoking, vaping, open flames, fumes',[
+['Patient smoking inside a patient room','high'],['Patient smoking inside a toilet or bathroom','high'],['Patient smoking in staff lounge, corridor, stairwell or other prohibited location','high'],['Smoking by patient companions or visitors','medium'],['Suspected vaping / e-cigarette use','medium'],['Burning incense, Oud, candles or other unauthorized combustibles','high'],['Smoke, burning odor or unexplained fumes','critical',1],['Repeated smoking violation','high'],['Other prohibited activity presenting fire/safety risk','medium']]),
+mk('elec','Unauthorized Electrical Appliances','🔌','Unauthorized or unsafe electrical equipment',[
+['Unauthorized microwave oven','medium'],['Electric kettle or water heater','medium'],['Portable cooking appliance','high'],['Unauthorized heater','high'],['Extension cord or multiplug adapter','medium'],['Damaged or overloaded electrical outlet','high'],['Unauthorized charger or electrical device','low'],['Appliance left operating unattended','high'],['Electrical burning smell, sparks, overheating or smoke','critical',1],['Electrical appliance in restricted area','high'],['Other unauthorized / unsafe electrical equipment','medium']]),
+mk('exit','Exit Signs & Evacuation Routes','🚪','Exit signs, blocked exits and routes',[
+['Fallen emergency exit sign','medium'],['Missing exit sign','high'],['Damaged, broken or illegible exit sign','medium'],['Exit sign incorrectly positioned or obstructed','medium'],['Illuminated exit sign not functioning','medium'],['Blocked emergency exit','high'],['Locked or inaccessible emergency exit','high'],['Obstructed evacuation route','high'],['Corridor obstruction','medium'],['Fire door obstruction or improper operation','high'],['Stairwell obstruction','high'],['Other evacuation route deficiency','medium']]),
+mk('light','Emergency Lighting & Evacuation Equipment','💡','Emergency lights, evacuation chairs',[
+['Emergency light fallen from mounting','medium'],['Emergency light damaged','medium'],['Emergency light not illuminating','medium'],['Emergency light battery / backup failure','medium'],['Exit sign illumination failure','medium'],['Evacuation chair missing','high'],['Evacuation chair incorrectly stored','medium'],['Evacuation chair inaccessible or obstructed','high'],['Evacuation chair damaged or defective','high'],['Evacuation chair accessories missing or damaged','medium'],['Inadequate evacuation equipment in designated location','high'],['Other emergency preparedness equipment deficiency','medium']]),
+mk('fire','Fire Protection & Life Safety Systems','🧯','Alarm, detection, suppression, extinguishers',[
+['Fire alarm panel trouble or fault','high'],['Smoke detector fault or suspected impairment','high'],['Manual call point damaged or obstructed','medium'],['Fire extinguisher missing, damaged, discharged or inaccessible','medium'],['Fire hose reel or fire cabinet obstruction','medium'],['Sprinkler / fire suppression concern','high'],['Fire door damage or failure to close','high'],['Fire stopping / penetration sealing deficiency','medium'],['Fire protection equipment blocked by stored items','medium'],['Fire protection impairment without appropriate notification','critical'],['Other fire and life safety deficiency','medium']]),
+mk('hk','Housekeeping & Environmental Safety','🧹','Waste, spills, floors, leaks, chemicals',[
+['Waste accumulation','low'],['Corridor or exit blocked by cleaning equipment or waste','high'],['Wet floor without warning signs','medium'],['Slippery floor or trip hazard','medium'],['Chemical spill or improper chemical storage','high'],['Cleaning chemicals left unattended','medium'],['Incorrect waste segregation or disposal','medium'],['Cleaning trolley obstructing evacuation route','medium'],['Unsafe storage in housekeeping room','low'],['Water leakage, flooding or ceiling leakage','medium'],['Unusual odor or suspected chemical exposure','high',1],['Other housekeeping-related safety concern','low']]),
+mk('gen','General Hospital Safety','🏥','Other hospital safety concerns',[
+['Unsafe behavior by patients, visitors or staff','medium'],['Unsafe storage of materials','medium'],['Damaged doors, walls, ceilings, floors or fixtures','medium'],['Missing safety labels or warning signs','low'],['Defective equipment or exposed electrical wiring','high'],['Elevator malfunction or entrapment concern','high'],['Unusual sound, vibration, heat or burning odor','high',1],['Unsafe contractor activity','high'],['Work performed without required authorization','high'],['Missing personal protective equipment','medium'],['Obstructed access to emergency equipment','high'],['Repeated unresolved safety complaint','medium'],['Other safety concern not covered above','low']]),
+mk('other','Other (not listed)','➕','New complaint type - description mandatory',[['Other - described below','medium']])
+];
+const DEFAULT_CFG={cats:DEFAULT_CATS,keywords:['smoke','smoking','fire','flame','burn','burning','burnt','spark','sparks','sparking','overheat','overheating','fumes','melting','short circuit'],sla:{critical:1,high:7,medium:30,low:90},depts:['Maintenance','Biomedical Engineering','Electrical','Housekeeping','Nursing','Security','Fire & Safety','IT','Contractor','Other']};
+
+/* ===== Local state ===== */
+let db={users:[],cfg:DEFAULT_CFG,complaints:[],audit:[]},me=null,V={n:'home'},F=null,FLT={};
+const uid=()=>(window.crypto&&crypto.randomUUID)?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16)});
+const strip=c=>{const o=Object.assign({},c);delete o._rev;return o};
+function save(){persistPending();pushAll();return true}
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nowISO=()=>new Date().toISOString();
+const pad=n=>String(n).padStart(2,'0');
+const localDT=(d=new Date())=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const fmt=s=>s?new Date(s).toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'-';
+const fmtD=s=>s?new Date(s).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'-';
+const dur=ms=>{if(ms==null||isNaN(ms))return '-';const h=ms/36e5;return h<48?h.toFixed(1)+' h':(h/24).toFixed(1)+' d'};
+const uname=id=>(db.users.find(u=>u.id===id)||{}).name||'-';
+const catOf=id=>db.cfg.cats.find(c=>c.id===id)||{name:'?',icon:'?',subs:[]};
+const can=()=>me&&me.role!=='viewer';
+const isAdmin=()=>me&&me.role==='admin';
+function audit(action,ref,detail){db.audit.push({at:nowISO(),by:me?me.id:'-',byName:me?me.name:'-',action,ref:ref||'',detail:detail||'',local:true})}
+
+/* ===== Shared backend (Supabase) & authentication ===== */
+const SUPABASE_URL='https://fkllstlivdcyxcokcqdj.supabase.co';        // optional: paste your Project URL here before hosting the file
+const SUPABASE_ANON_KEY='sb_publishable_tiD5dqI_cnw_gAKMZ1AjiQ_SdIuS7QN';   // optional: anon/publishable key (public by design; data is protected by database policies)
+const BK='sc_backend_cfg',PEND='sc_pending_v2';
+let sb=null,SNAP={},CFGSNAP='',LASTSIG='',again=false,pushP=null,poll=null,SYNC='',loginMsg='';
+function backendCfg(){if(SUPABASE_URL&&SUPABASE_ANON_KEY)return{url:SUPABASE_URL,key:SUPABASE_ANON_KEY};try{const o=JSON.parse(localStorage.getItem(BK));if(o&&o.url&&o.key)return o}catch(e){}return null}
+function initClient(c){if(!window.supabase)return false;sb=window.supabase.createClient(c.url,c.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});return true}
+function setSync(s){SYNC=s;const el=document.getElementById('sync');if(el)el.textContent=syncText()}
+function syncText(){return SYNC==='ok'?'● Synced':SYNC==='busy'?'↻ Syncing…':SYNC==='err'?'⚠ Not synced (will retry)':''}
+const dirtyC=c=>SNAP[c.id]!==JSON.stringify(strip(c));
+function hasPending(){return db.complaints.some(dirtyC)||db.audit.some(a=>a.local)}
+function persistPending(){try{if(!me)return;localStorage.setItem(PEND,JSON.stringify({u:me.id,c:db.complaints.filter(dirtyC),a:db.audit.filter(a=>a.local)}))}catch(e){}}
+function restorePending(){try{const p=JSON.parse(localStorage.getItem(PEND)||'null');if(!p||p.u!==me.id)return;const lost=[];
+ (p.c||[]).forEach(pc=>{const i=db.complaints.findIndex(x=>x.id===pc.id);
+  if(i<0)db.complaints.push(pc);else if(pc._rev==null){/* insert already reached the server */}
+  else if(db.complaints[i]._rev===pc._rev)db.complaints[i]=pc;else lost.push(pc.ref)});
+ (p.a||[]).forEach(a=>db.audit.push(a));
+ if(lost.length)setTimeout(()=>alert('These complaints were changed by another user while your edits were unsynced, so your unsynced edits were discarded: '+lost.join(', ')),0)}catch(e){}}
+function pushAll(){
+ if(!sb||!me)return Promise.resolve();
+ if(pushP){again=true;return pushP}
+ pushP=(async()=>{await Promise.resolve();
+  try{do{again=false;
+    const cfgDirty=isAdmin()&&JSON.stringify(db.cfg)!==CFGSNAP;
+    if(!cfgDirty&&!hasPending())break;
+    setSync('busy');
+    if(cfgDirty){const s=JSON.stringify(db.cfg);const{error}=await sb.from('app_config').upsert({id:1,data:db.cfg});if(error)throw error;CFGSNAP=s}
+    for(const c of db.complaints.slice()){
+     const body=strip(c),s=JSON.stringify(body);if(SNAP[c.id]===s)continue;
+     if(c._rev==null){const{data,error}=await sb.from('complaints').insert({id:c.id,ref:c.ref,data:body}).select('rev').single();if(error)throw error;c._rev=data.rev}
+     else{const{data,error}=await sb.from('complaints').update({data:body}).eq('id',c.id).eq('rev',c._rev).select('rev');if(error)throw error;if(!data.length){await conflict(c);continue}c._rev=data[0].rev}
+     SNAP[c.id]=s}
+    const un=db.audit.filter(a=>a.local);
+    if(un.length){const{error}=await sb.from('audit_log').insert(un.map(a=>({action:a.action,ref:a.ref,detail:a.detail})));if(error)throw error;un.forEach(a=>{a.local=false})}
+   }while(again);
+   if(!hasPending())setSync('ok')
+  }catch(e){console.error(e);setSync('err')}
+  finally{pushP=null;persistPending()}})();
+ return pushP}
+async function conflict(c){const{data}=await sb.from('complaints').select('*').eq('id',c.id).single();
+ if(data){const i=db.complaints.findIndex(x=>x.id===c.id),o=data.data;SNAP[c.id]=JSON.stringify(o);o._rev=data.rev;db.complaints[i]=o}
+ setTimeout(()=>{alert('Complaint '+c.ref+' was changed by another user. Your last change was NOT saved; the latest version is now shown. Please re-apply your change.');render()},0)}
+async function fetchAll(t,order){let out=[],from=0;for(;;){const{data,error}=await sb.from(t).select('*').order(order).range(from,from+999);if(error)throw error;out=out.concat(data);if(data.length<1000)break;from+=1000}return out}
+async function pullAll(force){
+ const[pr,cs,cf,au]=await Promise.all([fetchAll('profiles','full_name'),fetchAll('complaints','created_at'),sb.from('app_config').select('*').eq('id',1).maybeSingle(),fetchAll('audit_log','id')]);
+ if(cf.error)throw cf.error;
+ const sig=cs.map(r=>r.id+':'+r.rev).join()+'|'+au.length+'|'+(cf.data?cf.data.updated_at:'')+'|'+pr.map(p=>p.id+p.role+p.active).join();
+ if(!force&&sig===LASTSIG)return false;
+ LASTSIG=sig;
+ db.users=pr.map(x=>({id:x.id,name:x.full_name,role:x.role,active:x.active,email:x.email}));
+ const m=db.users.find(u=>u.id===me.id);
+ if(!m||!m.active){await forceLogout('Your account is no longer authorized.');return false}
+ me=m;
+ const local=new Map(db.complaints.map(c=>[c.id,c]));
+ db.complaints=cs.map(r=>{const l=local.get(r.id);if(l&&dirtyC(l)&&l._rev===r.rev)return l;const o=r.data;SNAP[r.id]=JSON.stringify(o);o._rev=r.rev;return o});
+ local.forEach((l,id)=>{if(l._rev==null&&!cs.some(r=>r.id===id))db.complaints.push(l)});
+ if(cf.data){CFGSNAP=JSON.stringify(cf.data.data);db.cfg=Object.assign({},DEFAULT_CFG,cf.data.data)}else{CFGSNAP='';db.cfg=db.cfg||DEFAULT_CFG}
+ const unsent=db.audit.filter(a=>a.local);
+ db.audit=au.map(r=>({at:r.at,by:r.user_id,byName:r.user_name,action:r.action,ref:r.ref||'',detail:r.detail||''})).concat(unsent);
+ return true}
+async function startSession(user){
+ const{data:prof,error}=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();
+ if(error||!prof||!prof.active){await sb.auth.signOut();me=null;return'Not an authorized Safety Team account.'}
+ me={id:prof.id,name:prof.full_name,role:prof.role,active:true,email:prof.email};
+ try{await pullAll(true)}catch(e){me=null;throw e}
+ if(!me)return'Your account is no longer authorized.';
+ restorePending();audit('LOGIN','',me.name);save();startPolling();return null}
+function startPolling(){stopPolling();poll=setInterval(pollOnce,30000)}
+function stopPolling(){if(poll)clearInterval(poll);poll=null}
+async function pollOnce(){if(!me||!sb||document.hidden)return;
+ try{await pushAll();const ch=await pullAll();
+  if(me&&ch&&!document.getElementById('modal').innerHTML&&['home','list','detail','reports'].includes(V.n)&&!(document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)))render()}
+ catch(e){setSync('err')}}
+async function forceLogout(msg){loginMsg=msg||'';stopPolling();try{await sb.auth.signOut()}catch(e){}me=null;F=null;db.complaints=[];db.audit=[];SNAP={};LASTSIG='';V={n:'home'};render()}
+async function logout(){
+ try{audit('LOGOUT');await pushAll()}catch(e){}
+ if(hasPending()&&!confirm('Some changes have not synced yet and will stay on this device until you sign in again. Log out anyway?'))return;
+ stopPolling();try{await sb.auth.signOut()}catch(e){}
+ me=null;F=null;db.complaints=[];db.audit=[];SNAP={};LASTSIG='';loginMsg='';V={n:'home'};render()}
+function pwUI(){modal(`<h2>Change my password</h2><label>New password (8+ characters)</label><input id="np" type="password" autocomplete="new-password"><label>Confirm</label><input id="np2" type="password" autocomplete="new-password"><p><button onclick="doPw()">Change</button> <button class="sec" onclick="modal('')">Cancel</button></p>`)}
+async function doPw(){if(np.value.length<8||np.value!==np2.value)return alert('Passwords must match and be at least 8 characters.');
+ const{error}=await sb.auth.updateUser({password:np.value});if(error)return alert(error.message);audit('PASSWORD_CHANGED','',me.name);save();modal('');alert('Password changed.')}
+
+/* ===== Login / connection screens ===== */
+function loginView(){const c=backendCfg();
+ if(!c)return `<main><div class="card" style="margin-top:30px"><h2>Connect to the shared database</h2>
+ <div class="info">One-time setup on this device. Paste the Project URL and the <b>anon / publishable</b> key from Supabase (Project Settings → API). Never paste a secret or service_role key here.</div>
+ <label>Project URL</label><input id="su" placeholder="https://xxxx.supabase.co"><label>Anon / publishable key</label><textarea id="sk"></textarea>
+ <p><button onclick="saveBackend()">Save & continue</button></p></div></main>`;
+ if(!sb)return `<main><div class="card" style="margin-top:30px"><h2>Cannot load the database library</h2><div class="warn">Check your internet connection and reload the page.</div></div></main>`;
+ return `<main><div class="card" style="margin-top:30px"><h2>Safety Team Sign-in</h2>
+ <div class="mut">Authorized users only. No registration or guest access.</div>
+ <label>Email</label><input id="le_m" type="email" autocomplete="username" value="${esc(localStorage.getItem('sc_last_email')||'')}">
+ <label>Password</label><input id="lp" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+ <div id="le" style="color:var(--crit);margin-top:8px;font-size:13px">${esc(loginMsg)}</div>
+ <p><button onclick="doLogin()">Sign in</button></p>${SUPABASE_URL?'':`<p class="mut"><a href="#" onclick="resetBackend();return false">Change database connection</a></p>`}</div></main>`}
+function saveBackend(){const u=su.value.trim().replace(/\/+$/,''),k=sk.value.trim();
+ if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(u)||k.length<20)return alert('Enter a valid Supabase project URL (https://xxxx.supabase.co) and the anon / publishable key.');
+ let secret=/^sb_secret_/.test(k);try{if(JSON.parse(atob(k.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).role==='service_role')secret=true}catch(e){}
+ if(secret)return alert('That is a SECRET key. Never use it in this app. Use the anon / publishable key.');
+ try{localStorage.setItem(BK,JSON.stringify({url:u,key:k}))}catch(e){}initClient({url:u,key:k});render()}
+function resetBackend(){if(!confirm('Disconnect this device from the current database?'))return;try{localStorage.removeItem(BK)}catch(e){}sb=null;render()}
+async function doLogin(){const em=le_m.value.trim(),pw=lp.value,err=document.getElementById('le');err.textContent='';
+ if(!em||!pw){err.textContent='Enter your email and password.';return}
+ err.style.color='var(--mut)';err.textContent='Signing in…';
+ const{data,error}=await sb.auth.signInWithPassword({email:em,password:pw});
+ err.style.color='var(--crit)';
+ if(error){err.textContent='Sign-in failed. Check your email and password.';return}
+ try{localStorage.setItem('sc_last_email',em)}catch(e){}
+ try{const e=await startSession(data.user);if(e){err.textContent=e;return}}
+ catch(x){err.textContent='Signed in, but the data could not be loaded: '+(x.message||x);try{await sb.auth.signOut()}catch(y){}return}
+ loginMsg='';go('home')}
+
+/* ===== Risk suggestion ===== */
+function findSub(catId,sub){return catOf(catId).subs.find(s=>s.n===sub)}
+function suggest(f){const s=findSub(f.cat,f.sub);if(!s)return null;let r=s.r,urgent=s.u;const why=['Default for selected hazard: '+s.r.toUpperCase()];
+ const txt=((f.desc||'')+' '+(f.original||'')+' '+(f.action||'')).toLowerCase();
+ const hit=db.cfg.keywords.filter(k=>txt.includes(k.toLowerCase()));
+ if(hit.length){urgent=true;why.push('Keywords in report: '+hit.join(', '));
+  if(['smoke','elec'].includes(f.cat)&&r!=='critical'){r='critical';why.push('Active smoke/fire/electrical indicator reported')}
+  else if(PR.indexOf(r)>1){r='high'}}
+ if(f.recurring==='yes'&&r==='medium'){r='high';why.push('Recurring issue - raised one level')}
+ if(f.cat==='light'&&f.similar&&f.similar.length>=2&&r==='medium'){r='high';why.push('Multiple related failures - possible route impact')}
+ return {r,urgent,why}}
+const emergencyText='IMMEDIATE RESPONSE REQUIRED. Follow the hospital emergency procedure now (activate the applicable emergency code, contact Security / Fire & Safety / the Fire Brigade as required, and notify the responsible manager). Do not wait to complete this record - save it afterwards.';
+
+/* ===== Routing / render ===== */
+function go(n,p){V=Object.assign({n},p||{});render();window.scrollTo(0,0)}
+function render(){const app=document.getElementById('app');
+ if(!me){app.innerHTML=loginView();return}
+ const v={home:homeView,list:listView,new:newView,detail:detailView,reports:reportsView,admin:adminView,wa:waView}[V.n]||homeView;
+ app.innerHTML=`<header><div><b>Staff Complaints & Safety Deficiencies</b><small>${esc(me.name)} · ${me.role}</small></div><div><span id="sync" style="font-size:11px;opacity:.9;margin-right:8px">${syncText()}</span><button class="sec sm" onclick="pwUI()">Password</button> <button class="sec sm" onclick="logout()">Log out</button></div></header><main>${v()}</main>
+ <nav>${[['home','📊','Console'],['new','➕','New'],['list','📋','Complaints'],['wa','💬','WhatsApp'],['reports','📄','Reports']].concat(isAdmin()?[['admin','⚙️','Admin']]:[]).map(x=>`<button class="${V.n===x[0]?'on':''}" onclick="${x[0]==='new'?'startNew()':`go('${x[0]}')`}"><span>${x[1]}</span>${x[2]}</button>`).join('')}</nav>`;
+ if(V.n==='new'&&can())updForm();hydrate()}
+
+/* ===== Metrics ===== */
+const isOpen=c=>c.status!=='Closed';
+const isOverdue=c=>isOpen(c)&&c.target&&new Date(c.target+'T23:59:59')<new Date();
+function firstResp(c){const h=c.history.find(x=>x.to!=='Received');return h?new Date(h.at)-new Date(c.submittedAt):null}
+function resTime(c){if(c.status!=='Closed')return null;const h=[...c.history].reverse().find(x=>x.to==='Closed');return h?new Date(h.at)-new Date(c.submittedAt):null}
+const avg=a=>{a=a.filter(x=>x!=null);return a.length?a.reduce((x,y)=>x+y,0)/a.length:null};
+function countBy(list,fn){const o={};list.forEach(c=>{const k=fn(c)||'(not set)';o[k]=(o[k]||0)+1});return o}
+function bars(o){const e=Object.entries(o).sort((a,b)=>b[1]-a[1]);if(!e.length)return '<div class="mut">No data</div>';const m=e[0][1];return e.map(([k,v])=>`<div class="bar"><span title="${esc(k)}">${esc(k)}</span><i style="width:${Math.max(3,v/m*40)}%"></i><em>${v}</em></div>`).join('')}
+const pb=p=>`<span class="badge ${p||'gray'}">${p?p.toUpperCase():'UNSET'}</span>`;
+const loc=c=>[c.building&&'Bldg '+c.building,c.floor&&'Fl '+c.floor,c.unit,c.room].filter(Boolean).join(' / ')||c.location||'-';
+function filtered(f){f=f||FLT;return db.complaints.filter(c=>{
+ if(f.from&&c.submittedAt<f.from)return false;if(f.to&&c.submittedAt>f.to+'T23:59:59')return false;
+ if(f.cat&&c.cat!==f.cat)return false;if(f.pri&&c.priority!==f.pri)return false;if(f.off&&c.officer!==f.off)return false;
+ if(f.st==='open'&&!isOpen(c))return false;if(f.st==='overdue'&&!isOverdue(c))return false;if(f.st==='unres'&&!(isOpen(c)&&['critical','high'].includes(c.priority)))return false;
+ if(f.st&&STAT.includes(f.st)&&c.status!==f.st)return false;if(f.st==='reopened'&&!c.history.some(h=>h.to==='Reopened'))return false;
+ if(f.loc&&!(loc(c)+' '+(c.location||'')).toLowerCase().includes(f.loc.toLowerCase()))return false;
+ if(f.q&&!(c.ref+' '+c.desc+' '+c.sub).toLowerCase().includes(f.q.toLowerCase()))return false;return true})}
+function filterBar(){return `<div class="card noprint"><div class="row">
+ <div><label>From</label><input type="date" value="${FLT.from||''}" onchange="FLT.from=this.value;render()"></div>
+ <div><label>To</label><input type="date" value="${FLT.to||''}" onchange="FLT.to=this.value;render()"></div></div>
+ <div class="row"><div><label>Category</label><select onchange="FLT.cat=this.value;render()"><option value="">All</option>${db.cfg.cats.map(c=>`<option value="${c.id}" ${FLT.cat===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
+ <div><label>Priority</label><select onchange="FLT.pri=this.value;render()"><option value="">All</option>${PR.map(p=>`<option ${FLT.pri===p?'selected':''}>${p}</option>`).join('')}</select></div></div>
+ <div class="row"><div><label>Status</label><select onchange="FLT.st=this.value;render()"><option value="">All</option><option value="open" ${FLT.st==='open'?'selected':''}>Open (any)</option><option value="overdue" ${FLT.st==='overdue'?'selected':''}>Overdue</option><option value="unres" ${FLT.st==='unres'?'selected':''}>Critical/High unresolved</option><option value="reopened" ${FLT.st==='reopened'?'selected':''}>Ever reopened</option>${STAT.map(s=>`<option ${FLT.st===s?'selected':''}>${s}</option>`).join('')}</select></div>
+ <div><label>Officer</label><select onchange="FLT.off=this.value;render()"><option value="">All</option>${db.users.map(u=>`<option value="${u.id}" ${FLT.off===u.id?'selected':''}>${esc(u.name)}</option>`).join('')}</select></div></div>
+ <div class="row"><div><label>Location contains</label><input value="${esc(FLT.loc||'')}" onchange="FLT.loc=this.value;render()"></div>
+ <div><label>Search</label><input value="${esc(FLT.q||'')}" onchange="FLT.q=this.value;render()"></div></div>
+ <p><button class="sec sm" onclick="FLT={};render()">Clear filters</button></p></div>`}
+
+/* ===== Home / Master Console ===== */
+function homeView(){const L=filtered(),open=L.filter(isOpen),od=L.filter(isOverdue),unres=open.filter(c=>['critical','high'].includes(c.priority));
+ const k=(n,l,f,cls)=>`<div class="${cls||''}" onclick="${f}"><b>${n}</b><small>${l}</small></div>`;
+ const cat=id=>L.filter(c=>c.cat===id).length;
+ const smokeRepeat=L.filter(c=>c.cat==='smoke'&&(c.recurring==='yes'||(c.links||[]).length||c.sub==='Repeated smoking violation')).length;
+ const exitSigns=L.filter(c=>c.cat==='exit'&&/sign/i.test(c.sub)).length,lightDef=L.filter(c=>c.cat==='light'&&/light|illum/i.test(c.sub)).length,chair=L.filter(c=>/evacuation chair/i.test(c.sub)).length;
+ const awaiting=open.filter(c=>c.status==='Awaiting repair or other action'||c.status==='Corrective action assigned');
+ const rec=Object.entries(countBy(L,c=>c.sub+' @ '+loc(c))).filter(e=>e[1]>1);
+ return `<h2>Master Console</h2>${filterBar()}
+ ${od.length?`<div class="alert">⚠ ${od.length} overdue corrective action(s). <a href="#" onclick="FLT.st='overdue';go('list');return false">View</a></div>`:''}
+ ${unres.length?`<div class="warn"><b>${unres.length}</b> critical/high-priority deficiency(ies) unresolved.</div>`:''}
+ <div class="kpi">${k(L.length,'Total received',"FLT.st='';go('list')")}${k(open.length,'Open',"FLT.st='open';go('list')")}${k(od.length,'Overdue',"FLT.st='overdue';go('list')",od.length?'r':'')}${k(L.filter(c=>c.history.some(h=>h.to==='Reopened')).length,'Reopened',"FLT.st='reopened';go('list')")}${k(unres.length,'Critical/High unresolved',"FLT.st='unres';go('list')",unres.length?'r':'')}${k(L.filter(c=>c.status==='Closed').length,'Closed','FLT.st=\'Closed\';go(\'list\')')}</div>
+ <div class="card" style="margin-top:10px"><h3>Response times</h3>Average first response: <b>${dur(avg(L.map(firstResp)))}</b> · Average resolution: <b>${dur(avg(L.map(resTime)))}</b></div>
+ <div class="card"><h3>Focus areas</h3><div class="kpi">${k(cat('smoke'),'Smoking reports',"FLT.cat='smoke';go('list')")}${k(smokeRepeat,'Repeated smoking',"FLT.cat='smoke';go('list')")}${k(cat('elec'),'Unauthorized electrical',"FLT.cat='elec';go('list')")}${k(exitSigns,'Exit sign issues',"FLT.cat='exit';go('list')")}${k(lightDef,'Emergency lighting',"FLT.cat='light';go('list')")}${k(chair,'Evacuation chairs',"FLT.cat='light';go('list')")}${k(cat('fire'),'Fire & life safety',"FLT.cat='fire';go('list')")}${k(L.filter(c=>c.dept==='Nursing').length,'From Nursing',"go('list')")}${k(L.filter(c=>c.dept==='Housekeeping').length,'From Housekeeping',"go('list')")}${k(awaiting.length,'Awaiting maintenance / action',"FLT.st='Awaiting repair or other action';go('list')")}</div></div>
+ <div class="card"><h3>By category</h3>${bars(countBy(L,c=>catOf(c.cat).name))}</div>
+ <div class="card"><h3>By subcategory</h3>${bars(countBy(L,c=>c.sub))}</div>
+ <div class="card"><h3>By reporting department</h3>${bars(countBy(L,c=>c.dept))}</div>
+ <div class="card"><h3>By building / floor / unit</h3>${bars(countBy(L,c=>loc(c)))}</div>
+ <div class="card"><h3>By status</h3>${bars(countBy(L,c=>c.status))}</div>
+ <div class="card"><h3>Recurring deficiencies (same subcategory + location)</h3>${rec.length?rec.map(e=>`<div class="bar"><span>${esc(e[0])}</span><em>${e[1]}×</em></div>`).join(''):'<div class="mut">None detected</div>'}</div>
+ <div class="mut">Counts include unverified complaints; see Reports for confirmed vs unverified separation.</div>`}
+
+/* ===== List ===== */
+function listView(){const L=filtered().sort((a,b)=>b.submittedAt.localeCompare(a.submittedAt));
+ return `<h2>Complaints (${L.length})</h2>${filterBar()}<div class="card">${L.length?L.map(c=>`<div class="item" onclick="go('detail',{id:'${c.id}'})"><div class="row" style="justify-content:space-between"><b>${c.ref}</b><span>${pb(c.priority)} ${isOverdue(c)?'<span class="badge critical">OVERDUE</span>':''}</span></div>
+ <div>${catOf(c.cat).icon} ${esc(c.sub)}</div><div class="mut">${esc(loc(c))} · ${esc(c.status)} · ${esc(c.classification)}</div><div class="mut">${fmt(c.submittedAt)} · ${esc(uname(c.enteredBy))}</div></div>`).join(''):'<div class="mut">No complaints match.</div>'}</div>`}
+
+/* ===== New complaint form ===== */
+function blankForm(){return {cat:'',sub:'',received:localDT(),event:'',reporter:'',dept:'Nursing',channel:'Verbal',building:'',floor:'',unit:'',room:'',desc:'',original:'',involved:'',action:'',recurring:'no',similar:[],officer:me.id,respDept:'',priority:'',classification:'Unassessed',evidence:[],otherDesc:''}}
+function startNew(pre){F=Object.assign(blankForm(),pre||{});go('new')}
+function newView(){if(!F)F=blankForm();if(!can())return '<div class="warn">Your role is read-only.</div>';
+ const ds=(id,k)=>`<datalist id="${id}">${[...new Set(db.complaints.map(c=>c[k]).filter(Boolean))].map(v=>`<option value="${esc(v)}">`).join('')}</datalist>`;
+ return `<h2>New complaint / observation</h2>
+ <div class="card"><label>1. Category</label><div class="grid">${db.cfg.cats.map(c=>`<div class="cat ${F.cat===c.id?'on':''}" onclick="F.cat='${c.id}';F.sub='';render()"><i>${c.icon}</i>${esc(c.name)}</div>`).join('')}</div>
+ <div id="subwrap">${F.cat?`<label>2. Subcategory</label><select id="f_sub" onchange="F.sub=this.value;updForm()"><option value="">Select…</option>${catOf(F.cat).subs.map(s=>`<option ${F.sub===s.n?'selected':''}>${esc(s.n)}</option>`).join('')}</select>`:''}</div>
+ ${F.cat==='other'?`<label>Describe the new complaint type (mandatory)</label><input value="${esc(F.otherDesc)}" oninput="F.otherDesc=this.value">`:''}
+ <div id="alertbox"></div>
+ <label>3. Description (English)</label><textarea id="f_desc" oninput="F.desc=this.value;updForm()" placeholder="What was reported?">${esc(F.desc)}</textarea>
+ <div class="row"><div><label>Building</label><input list="dl_b" value="${esc(F.building)}" oninput="F.building=this.value;updForm()"></div><div><label>Floor</label><input list="dl_f" value="${esc(F.floor)}" oninput="F.floor=this.value;updForm()"></div></div>
+ <div class="row"><div><label>Unit / department area</label><input list="dl_u" value="${esc(F.unit)}" oninput="F.unit=this.value;updForm()"></div><div><label>Room / corridor / exact spot</label><input value="${esc(F.room)}" oninput="F.room=this.value;updForm()"></div></div>
+ ${ds('dl_b','building')}${ds('dl_f','floor')}${ds('dl_u','unit')}
+ <div id="sugbox"></div>
+ <div class="row"><div><label>Reporting department</label><select onchange="F.dept=this.value">${['Nursing','Housekeeping','Other'].concat(db.cfg.depts.filter(d=>!['Nursing','Housekeeping','Other'].includes(d))).map(d=>`<option ${F.dept===d?'selected':''}>${d}</option>`).join('')}</select></div>
+ <div><label>Channel</label><select onchange="F.channel=this.value">${CHANNELS.map(d=>`<option ${F.channel===d?'selected':''}>${d}</option>`).join('')}</select></div></div>
+ <div id="similar"></div></div>
+ <details class="card"><summary>More details (optional)</summary>
+ <div class="row"><div><label>Complaint received</label><input type="datetime-local" value="${F.received}" onchange="F.received=this.value"></div><div><label>Event occurred (if known)</label><input type="datetime-local" value="${F.event}" onchange="F.event=this.value"></div></div>
+ <label>Reporting person (if provided)</label><input value="${esc(F.reporter)}" oninput="F.reporter=this.value">
+ <label>Original text (e.g. Arabic) - preserved as received</label><textarea oninput="F.original=this.value;updForm()">${esc(F.original)}</textarea>
+ <label>Persons / equipment / activities involved</label><input value="${esc(F.involved)}" oninput="F.involved=this.value">
+ <label>Immediate action taken</label><textarea oninput="F.action=this.value;updForm()">${esc(F.action)}</textarea>
+ <div class="row"><div><label>Recurring issue?</label><select onchange="F.recurring=this.value;updForm()"><option value="no" ${F.recurring==='no'?'selected':''}>No / unknown</option><option value="yes" ${F.recurring==='yes'?'selected':''}>Yes</option></select></div>
+ <div><label>Assigned Safety Officer</label><select onchange="F.officer=this.value">${db.users.filter(u=>u.active).map(u=>`<option value="${u.id}" ${F.officer===u.id?'selected':''}>${esc(u.name)}</option>`).join('')}</select></div></div>
+ <label>Responsible maintenance / operational department</label><select onchange="F.respDept=this.value"><option value="">-</option>${db.cfg.depts.map(d=>`<option ${F.respDept===d?'selected':''}>${d}</option>`).join('')}</select></details>
+ <div class="card"><h3>Evidence</h3><div id="evlist">${evList(F.evidence)}</div>
+ <div class="row"><button class="sec" onclick="addEvidenceUI(null)">📎 Photo / screenshot / file</button><button class="sec" onclick="addTextEvidenceUI(null)">📝 Paste message text</button></div></div>
+ <div class="card"><label>Priority (you must confirm)</label><div id="prbox"></div>
+ <p><button id="savebtn" onclick="submitNew()">Save complaint</button> <button class="sec" onclick="F=null;go('home')">Cancel</button></p>
+ <div class="mut">Receipt time and your name are recorded automatically. Classification starts as “Unassessed” until you assess it.</div></div>`}
+function updForm(){if(V.n!=='new')return;const sg=suggest(F);
+ const sb=document.getElementById('sugbox'),ab=document.getElementById('alertbox'),pr=document.getElementById('prbox');
+ if(sg){F._sg=sg;sb.innerHTML=`<div class="info"><b>Suggested priority: ${sg.r.toUpperCase()}</b>${sg.urgent?' · <b>potentially urgent</b>':''}<br><span class="mut">${sg.why.map(esc).join(' · ')}</span><br><span class="mut">Consider location, operational impact and available alternative protection before confirming.</span></div>`}
+ else{sb.innerHTML='';F._sg=null}
+ const crit=(F.priority==='critical')||(sg&&(sg.r==='critical'||sg.urgent));
+ ab.innerHTML=crit?`<div class="alert">🚨 ${esc(emergencyText)}</div>`:'';
+ pr.innerHTML=`<div class="row">${PR.map(p=>`<button class="${F.priority===p?p:'sec'}" onclick="F.priority='${p}';updForm()">${p.toUpperCase()}${sg&&sg.r===p?' ★':''}</button>`).join('')}</div>`+(sg?`<div class="mut" style="margin-top:6px">★ = suggested.</div>`:'');
+ const sim=document.getElementById('similar');
+ if(F.cat&&F.sub){const m=similarTo(F);F.similar=F.similar.filter(x=>m.some(c=>c.id===x));
+  sim.innerHTML=m.length?`<div class="warn"><b>Similar previous complaints (${m.length})</b> - tick to link as repeat:${m.slice(0,6).map(c=>`<div><label style="display:flex;gap:8px;align-items:center;margin:4px 0"><input type="checkbox" style="width:auto" ${F.similar.includes(c.id)?'checked':''} onchange="togSim('${c.id}',this.checked)">${c.ref} · ${esc(loc(c))} · ${esc(c.status)} · ${fmtD(c.submittedAt)}</label></div>`).join('')}</div>`:''}
+ else sim.innerHTML=''}
+function togSim(id,on){F.similar=F.similar.filter(x=>x!==id);if(on)F.similar.push(id);if(F.similar.length)F.recurring='yes';updForm()}
+function similarTo(f,selfId){const n=s=>(s||'').toLowerCase().trim();
+ return db.complaints.filter(c=>c.id!==selfId&&c.cat===f.cat&&(c.sub===f.sub||f.cat==='other')&&(!f.building||n(c.building)===n(f.building))&&(!f.floor||n(c.floor)===n(f.floor))&&(!f.unit||n(c.unit)===n(f.unit))).sort((a,b)=>b.submittedAt.localeCompare(a.submittedAt))}
+async function submitNew(){if(!F.cat||!F.sub)return alert('Select a category and subcategory.');
+ if(!F.desc.trim())return alert('Enter a description.');if(F.cat==='other'&&!F.otherDesc.trim())return alert('The "Other" option requires a description of the new complaint type.');
+ if(!(F.building||F.floor||F.unit||F.room))return alert('Enter at least one location detail.');
+ if(!F.priority)return alert('Confirm a priority (tap the suggested one).');
+ const btn=document.getElementById('savebtn');btn.disabled=true;btn.textContent='Saving…';
+ let ref;try{const{data,error}=await sb.rpc('next_ref');if(error)throw error;ref=data}
+ catch(e){btn.disabled=false;btn.textContent='Save complaint';return alert('Cannot reach the database to issue a unique reference number. Check the connection and try again. If this is a critical hazard, act on it now and record it afterwards.')}
+ const c={id:uid(),ref,submittedAt:nowISO(),receivedAt:F.received?new Date(F.received).toISOString():nowISO(),eventAt:F.event?new Date(F.event).toISOString():'',
+ reporter:F.reporter,dept:F.dept,channel:F.channel,building:F.building,floor:F.floor,unit:F.unit,room:F.room,cat:F.cat,sub:F.sub,otherDesc:F.otherDesc,desc:F.desc,original:F.original,involved:F.involved,action:F.action,recurring:F.recurring,
+ links:F.similar.slice(),officer:F.officer,enteredBy:me.id,respDept:F.respDept,priority:F.priority,suggested:F._sg?F._sg.r:'',urgentFlag:!!(F._sg&&F._sg.urgent),
+ classification:'Unassessed',status:'Received',corrective:'',responsible:'',workOrder:'',target:'',
+ evidence:F.evidence.map(e=>Object.assign(e,{purpose:'report'})),history:[{at:nowISO(),by:me.id,from:null,to:'Received',comment:'Complaint logged via '+F.channel}],notes:[]};
+ db.complaints.push(c);audit('CREATE',c.ref,catOf(c.cat).name+' / '+c.sub+' / '+c.priority);
+ c.links.forEach(id=>{const o=db.complaints.find(x=>x.id===id);if(o){o.links=o.links||[];if(!o.links.includes(c.id))o.links.push(c.id);audit('LINK',o.ref,'Linked to '+c.ref)}});
+ persistPending();await pushAll();
+ if(dirtyC(c))alert('Saved on this device as '+ref+' but not yet synced. It will sync automatically when the connection returns - keep this page open.');
+ const crit=c.priority==='critical'||c.urgentFlag;F=null;go('detail',{id:c.id,crit})}
+
+/* ===== Evidence (private storage bucket) ===== */
+const URLC=new Map();
+async function signed(p){const h=URLC.get(p);if(h&&h.exp>Date.now())return h.url;
+ const{data,error}=await sb.storage.from('evidence').createSignedUrl(p,3600);if(error||!data)return null;
+ URLC.set(p,{url:data.signedUrl,exp:Date.now()+3300000});return data.signedUrl}
+function hydrate(){if(!sb)return;
+ document.querySelectorAll('img[data-path]').forEach(async el=>{const u=await signed(el.dataset.path);if(u)el.src=u});
+ document.querySelectorAll('a[data-dl]').forEach(async a=>{const u=await signed(a.dataset.dl);if(u){a.href=u;a.target='_blank';a.rel='noopener'}})}
+async function uploadEv(dataUrl){const blob=await(await fetch(dataUrl)).blob();
+ const path=new Date().getFullYear()+'/'+uid()+(blob.type==='application/pdf'?'.pdf':'.jpg');
+ const{error}=await sb.storage.from('evidence').upload(path,blob,{contentType:blob.type,upsert:false});
+ if(error)throw new Error('Upload failed: '+error.message);return path}
+function evList(list){return list.length?list.map(e=>`<div class="card" style="padding:8px">${e.kind==='image'?`<img class="th" data-path="${esc(e.path)}" alt="evidence">`:''}${e.kind==='file'?`<a href="#" data-dl="${esc(e.path)}">📄 ${esc(e.name)}</a>`:''}${e.text?`<div style="white-space:pre-wrap;font-size:13px">${esc(e.text)}</div>`:''}
+ <div class="mut">${esc(e.name||'Text evidence')} · ${esc(e.purpose||'')} · ${esc(uname(e.by))} · ${fmt(e.at)}${e.note?' · '+esc(e.note):''}</div></div>`).join(''):'<div class="mut">No evidence attached.</div>'}
+function compress(file){return new Promise((res,rej)=>{const r=new FileReader();r.onerror=()=>rej('Could not read the file.');r.onload=()=>{
+ if(!file.type.startsWith('image/')){if(file.type!=='application/pdf')return rej('Only photos/screenshots and PDF files are permitted.');if(file.size>4194304)return rej('PDF must be under 4 MB.');return res({kind:'file',data:r.result})}
+ const im=new Image();im.onload=()=>{const s=Math.min(1,1280/Math.max(im.width,im.height)),cv=document.createElement('canvas');cv.width=im.width*s;cv.height=im.height*s;cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);res({kind:'image',data:cv.toDataURL('image/jpeg',.72)})};im.onerror=()=>rej('Could not read the image.');im.src=r.result};r.readAsDataURL(file)})}
+function modal(html){document.getElementById('modal').innerHTML=html?`<div class="ov"><div class="box">${html}</div></div>`:''}
+function addEvidenceUI(cid,purpose){modal(`<h2>Add file evidence</h2><label>File (photo, screenshot, PDF)</label><input type="file" id="ef" accept="image/*,application/pdf">
+ <label>Note (optional)</label><input id="en">${cid?`<label>Purpose</label><select id="ep"><option value="investigation" ${purpose==='investigation'?'selected':''}>Investigation</option><option value="closure" ${purpose==='closure'?'selected':''}>Closure / completion evidence</option><option value="report">Original report</option></select>`:''}
+ <p><button id="evbtn" onclick="doAddEv('${cid||''}')">Add</button> <button class="sec" onclick="modal('')">Cancel</button></p>`)}
+async function doAddEv(cid){const f=ef.files[0];if(!f)return alert('Choose a file.');const b=document.getElementById('evbtn');b.disabled=true;b.textContent='Uploading…';
+ try{const x=await compress(f);const path=await uploadEv(x.data);
+  pushEv(cid,{id:uid(),kind:x.kind,path,name:f.name,note:en.value,by:me.id,at:nowISO(),purpose:cid?ep.value:'report'})}
+ catch(e){b.disabled=false;b.textContent='Add';alert(e.message||e)}}
+function addTextEvidenceUI(cid){modal(`<h2>Paste message / conversation text</h2><textarea id="et" style="min-height:160px" placeholder="Paste copied WhatsApp or email text (original wording is preserved)"></textarea>
+ ${cid?`<label>Purpose</label><select id="ep"><option value="investigation">Investigation</option><option value="closure">Closure / completion evidence</option><option value="report">Original report</option></select>`:''}
+ <p><button onclick="doAddText('${cid||''}')">Add</button> <button class="sec" onclick="modal('')">Cancel</button></p>`)}
+function doAddText(cid){if(!et.value.trim())return;pushEv(cid,{id:uid(),kind:'text',text:et.value,name:'Pasted text',by:me.id,at:nowISO(),purpose:cid?ep.value:'report'})}
+function pushEv(cid,ev){if(cid){const c=db.complaints.find(x=>x.id===cid);c.evidence.push(ev);audit('EVIDENCE',c.ref,ev.purpose+': '+(ev.name||ev.kind));save();modal('');render()}
+ else{F.evidence.push(ev);modal('');document.getElementById('evlist').innerHTML=evList(F.evidence);hydrate()}}
+
+/* ===== Detail & workflow ===== */
+function detailView(){const c=db.complaints.find(x=>x.id===V.id);if(!c)return 'Not found';const cat=catOf(c.cat),ro=!can();
+ const linked=(c.links||[]).map(id=>db.complaints.find(x=>x.id===id)).filter(Boolean);
+ return `${V.crit?`<div class="alert">🚨 ${esc(emergencyText)}</div>`:''}
+ <p><button class="sec sm" onclick="go('list')">← Back</button></p>
+ <div class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0">${c.ref}</h2><span>${pb(c.priority)} ${isOverdue(c)?'<span class="badge critical">OVERDUE</span>':''}</span></div>
+ <div style="margin:6px 0"><b>${cat.icon} ${esc(cat.name)}</b><br>${esc(c.sub)}${c.otherDesc?' - '+esc(c.otherDesc):''}</div>
+ <div class="mut">Status: <b>${esc(c.status)}</b> · Classification: <b>${esc(c.classification)}</b>${CONFIRMED.includes(c.classification)?' (confirmed)':' (not a verified finding)'}</div>
+ <p style="white-space:pre-wrap">${esc(c.desc)}</p>${c.original?`<div class="mut">Original text:</div><div style="white-space:pre-wrap;font-size:13px">${esc(c.original)}</div>`:''}
+ <table><tr><th>Location</th><td>${esc(loc(c))}</td></tr><tr><th>Received</th><td>${fmt(c.receivedAt)} via ${esc(c.channel)}</td></tr><tr><th>Logged</th><td>${fmt(c.submittedAt)} by ${esc(uname(c.enteredBy))}</td></tr><tr><th>Event time</th><td>${fmt(c.eventAt)}</td></tr>
+ <tr><th>Reported by</th><td>${esc(c.reporter||'-')} (${esc(c.dept)})</td></tr><tr><th>Involved</th><td>${esc(c.involved||'-')}</td></tr><tr><th>Immediate action</th><td>${esc(c.action||'-')}</td></tr><tr><th>Recurring</th><td>${c.recurring==='yes'?'Yes':'No / unknown'}</td></tr>
+ <tr><th>Officer</th><td>${esc(uname(c.officer))}</td></tr><tr><th>Responsible dept</th><td>${esc(c.respDept||'-')} ${c.responsible?'· '+esc(c.responsible):''} ${c.workOrder?'· WO '+esc(c.workOrder):''}</td></tr>
+ <tr><th>Corrective action</th><td>${esc(c.corrective||'-')}</td></tr><tr><th>Target date</th><td>${fmtD(c.target)}</td></tr>
+ <tr><th>Suggested vs confirmed</th><td>Suggested ${esc((c.suggested||'-').toUpperCase())} → confirmed ${esc(c.priority.toUpperCase())}</td></tr></table></div>
+ ${linked.length?`<div class="warn"><b>Linked / repeat complaints</b>${linked.map(l=>`<div class="item" onclick="go('detail',{id:'${l.id}'})">${l.ref} · ${esc(l.sub)} · ${esc(l.status)} · ${fmtD(l.submittedAt)}${l.status==='Closed'?' <span class="badge gray">closed earlier - possible ineffective corrective action</span>':''}</div>`).join('')}</div>`:''}
+ ${ro?'':`<div class="card"><h3>Workflow</h3><div class="row">${NEXT[c.status].map(t=>`<button class="${t==='Closed'?'dan':''}" onclick="transUI('${c.id}','${t}')">→ ${t}</button>`).join('')}</div></div>
+ <details class="card"><summary>Assessment (classification, priority, assignment)</summary>
+ <label>Classification (your assessment)</label><select id="a_cls">${CLS.map(x=>`<option ${c.classification===x?'selected':''}>${x}</option>`).join('')}</select>
+ <div class="row"><div><label>Priority</label><select id="a_pr">${PR.map(x=>`<option ${c.priority===x?'selected':''}>${x}</option>`).join('')}</select></div>
+ <div><label>Officer</label><select id="a_of">${db.users.filter(u=>u.active).map(u=>`<option value="${u.id}" ${c.officer===u.id?'selected':''}>${esc(u.name)}</option>`).join('')}</select></div></div>
+ <div class="row"><div><label>Responsible dept</label><select id="a_rd"><option value="">-</option>${db.cfg.depts.map(d=>`<option ${c.respDept===d?'selected':''}>${d}</option>`).join('')}</select></div><div><label>Target date</label><input type="date" id="a_td" value="${c.target||''}"></div></div>
+ <label>Reason for changes (required if priority changes)</label><input id="a_re"><p><button onclick="saveAssess('${c.id}')">Save assessment</button></p>
+ <div class="mut">Default target by priority: ${PR.map(p=>p+' '+db.cfg.sla[p]+'d').join(', ')}</div></details>`}
+ <div class="card"><h3>Evidence</h3>${evList(c.evidence)}${ro?'':`<div class="row"><button class="sec" onclick="addEvidenceUI('${c.id}')">📎 Add file</button><button class="sec" onclick="addTextEvidenceUI('${c.id}')">📝 Add text</button></div>`}
+ <div class="mut" style="margin-top:6px">Original evidence cannot be deleted from this screen.</div></div>
+ <div class="card"><h3>History & audit trail</h3>${[...c.history].reverse().map(h=>`<div class="hist"><b>${h.from?esc(h.from)+' → ':''}${esc(h.to)}</b><div class="mut">${fmt(h.at)} · ${esc(uname(h.by))}</div>${h.comment?`<div style="white-space:pre-wrap">${esc(h.comment)}</div>`:''}</div>`).join('')}
+ ${db.audit.filter(a=>a.ref===c.ref&&a.action!=='CREATE').slice().reverse().map(a=>`<div class="mut">${fmt(a.at)} · ${esc(a.byName)} · ${esc(a.action)} ${esc(a.detail)}</div>`).join('')}</div>`}
+function saveAssess(id){const c=db.complaints.find(x=>x.id===id);const ch=[];
+ const set=(k,v,l)=>{if(c[k]!==v){ch.push(`${l}: ${c[k]||'-'} → ${v||'-'}`);c[k]=v}};
+ if(c.priority!==a_pr.value&&!a_re.value.trim())return alert('Give a reason when changing priority.');
+ set('classification',a_cls.value,'Classification');set('priority',a_pr.value,'Priority');set('officer',a_of.value,'Officer');set('respDept',a_rd.value,'Dept');set('target',a_td.value,'Target');
+ if(!ch.length)return alert('No changes.');audit('ASSESS',c.ref,ch.join('; ')+(a_re.value?' | '+a_re.value:''));if(save())render()}
+function transUI(id,to){const c=db.complaints.find(x=>x.id===id);const needCA=to==='Corrective action assigned';const closing=to==='Closed';
+ const hasClosure=c.evidence.some(e=>e.purpose==='closure');
+ modal(`<h2>${esc(c.status)} → ${to}</h2>
+ ${closing?`<div class="warn">Closing requires findings/verification comment${c.status==='Awaiting Safety Officer verification'?', an assessed classification and closure evidence':' and classification “Not substantiated” (set it in Assessment first)'}. Acknowledgement or a promise to act is not closure.${hasClosure?'':'<br><b>No closure evidence attached yet.</b> Add it from the complaint first.'}</div>`:''}
+ ${needCA?`<label>Corrective action (required)</label><textarea id="t_ca">${esc(c.corrective)}</textarea><div class="row"><div><label>Responsible dept (required)</label><select id="t_rd"><option value="">-</option>${db.cfg.depts.map(d=>`<option ${c.respDept===d?'selected':''}>${d}</option>`).join('')}</select></div><div><label>Responsible person</label><input id="t_rp" value="${esc(c.responsible)}"></div></div>
+ <div class="row"><div><label>Work order ref</label><input id="t_wo" value="${esc(c.workOrder)}"></div><div><label>Target date (required)</label><input type="date" id="t_td" value="${c.target||addDays(db.cfg.sla[c.priority])}"></div></div>`:''}
+ ${to==='Awaiting Safety Officer verification'?`<div class="warn">Record completion evidence (photo or work-order closure) under “Add file” with purpose “Closure”.</div>`:''}
+ <label>Comment (required)</label><textarea id="t_c"></textarea>
+ ${closing&&c.status==='Awaiting Safety Officer verification'?`<label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="t_v" style="width:auto"> I verified the restoration / correction myself or reviewed the evidence</label>`:''}
+ <p><button onclick="doTrans('${id}','${to}')">Confirm</button> <button class="sec" onclick="modal('')">Cancel</button></p>`)}
+function addDays(n){const d=new Date();d.setDate(d.getDate()+n);return localDT(d).slice(0,10)}
+function doTrans(id,to){const c=db.complaints.find(x=>x.id===id),com=t_c.value.trim();if(!com)return alert('A comment is required.');
+ if(to==='Corrective action assigned'){if(!t_ca.value.trim()||!t_rd.value||!t_td.value)return alert('Corrective action, responsible department and target date are required.');
+  Object.assign(c,{corrective:t_ca.value.trim(),respDept:t_rd.value,responsible:t_rp.value,workOrder:t_wo.value,target:t_td.value})}
+ if(to==='Closed'){if(c.status==='Awaiting Safety Officer verification'){
+   if(['Unassessed','Staff complaint (unverified)'].includes(c.classification))return alert('Assess the classification before closing (Assessment section).');
+   if(c.classification!=='Not substantiated'&&!c.evidence.some(e=>e.purpose==='closure'))return alert('Closure evidence is required (add a file or text with purpose “Closure”).');
+   if(!t_v.checked)return alert('Confirm that verification was performed.')}
+  else if(c.classification!=='Not substantiated')return alert('Early closure is only allowed when classification is “Not substantiated”.')}
+ const h={at:nowISO(),by:me.id,from:c.status,to,comment:com};c.history.push(h);c.status=to;audit('STATUS',c.ref,h.from+' → '+to);
+ if(to==='Reopened')c.target='';if(save()){modal('');render()}}
+
+/* ===== WhatsApp / pasted evidence analysis ===== */
+let WA={text:'',img:null,res:null};
+function waView(){if(!can())return '<div class="warn">Read-only role.</div>';
+ return `<h2>WhatsApp / message evidence</h2><div class="info">Paste copied conversation text and/or upload a screenshot. Extraction is rule-based on this device (no paid API). Suggestions are <b>unverified</b> - review before saving. Screenshot text is not read automatically; type or paste it.</div>
+ <div class="card"><label>Pasted conversation</label><textarea id="wa_t" style="min-height:140px" oninput="WA.text=this.value">${esc(WA.text)}</textarea>
+ <label>Screenshot (optional)</label><input type="file" accept="image/*" onchange="waImg(this)">${WA.img?`<img class="th" src="${WA.img.data}">`:''}
+ <p><button onclick="waAnalyze()">Extract details</button> <button class="sec" onclick="WA={text:'',img:null,res:null};render()">Clear</button></p></div>${WA.res?waResult():''}`}
+async function waImg(el){if(el.files[0]){try{WA.img=await compress(el.files[0]);WA.img.name=el.files[0].name;render()}catch(e){alert(e)}}}
+function waAnalyze(){const t=WA.text;const r={arabic:/[\u0600-\u06FF]/.test(t),dates:[],loc:[],commit:[],hazards:[]};
+ r.dates=[...new Set((t.match(/\b\d{1,2}[\/\-.]\d{1,2}[\/\-.]\d{2,4}\b|\b\d{1,2}:\d{2}\s?(?:am|pm)?\b|\btoday\b|\byesterday\b|\btomorrow\b/gi)||[]))];
+ r.loc=[...new Set((t.match(/\b(?:building|bldg|block|floor|level|unit|ward|room|rm|ICU|ER|OR|corridor|stair\w*)\s*[-#:]?\s*[A-Za-z0-9]+/gi)||[]))];
+ r.commit=t.split(/[\n.!?]+/).filter(s=>/\b(will|shall|going to|promise|tomorrow|by (?:today|tonight|friday|monday|\d)|need to|must|please)\b/i.test(s)).map(s=>s.trim()).filter(Boolean).slice(0,8);
+ const words=t.toLowerCase().match(/[a-z]{4,}/g)||[];let best=[];
+ db.cfg.cats.forEach(c=>c.subs.forEach(s=>{const w=(c.name+' '+s.n).toLowerCase().match(/[a-z]{4,}/g)||[];const sc=w.filter(x=>words.some(y=>y.startsWith(x.slice(0,5)))).length;if(sc>1)best.push({c,s,sc})}));
+ best.sort((a,b)=>b.sc-a.sc);r.hazards=best.slice(0,4);r.kw=db.cfg.keywords.filter(k=>t.toLowerCase().includes(k));
+ WA.res=r;render()}
+function waResult(){const r=WA.res;return `<div class="card"><h3>Extracted (unverified suggestions)</h3>
+ ${r.arabic?'<div class="warn">Arabic text detected. The original is preserved; enter an English description when reviewing.</div>':''}
+ ${r.kw.length?`<div class="alert">Urgent keywords found: ${esc(r.kw.join(', '))}. ${esc(emergencyText)}</div>`:''}
+ <p><b>Dates/times mentioned:</b> ${esc(r.dates.join(', ')||'none found')}</p><p><b>Locations mentioned:</b> ${esc(r.loc.join(', ')||'none found')}</p>
+ <p><b>Possible hazard types:</b></p>${r.hazards.length?r.hazards.map((h,i)=>`<div class="item" onclick="waDraft(${i})">${h.c.icon} ${esc(h.s.n)} <span class="mut">(tap to create draft)</span></div>`).join(''):'<div class="mut">No match - choose manually.</div>'}
+ <p><b>Instructions / commitments:</b></p>${r.commit.map(x=>`<div class="mut">• ${esc(x)}</div>`).join('')||'<div class="mut">none found</div>'}
+ <p><button onclick="waDraft(-1)">Create draft (choose category myself)</button></p>
+ <label>Or link this evidence to an existing complaint</label><select id="wa_link"><option value="">Select…</option>${db.complaints.filter(isOpen).map(c=>`<option value="${c.id}">${c.ref} · ${esc(c.sub)}</option>`).join('')}</select><p><button class="sec" onclick="waLink()">Link evidence</button></p></div>`}
+async function waEv(){const evs=[];
+ if(WA.text.trim())evs.push({id:uid(),kind:'text',text:WA.text,name:'WhatsApp / message text',by:me.id,at:nowISO(),purpose:'report',note:'Machine extraction unverified'});
+ if(WA.img){const path=await uploadEv(WA.img.data);evs.push({id:uid(),kind:WA.img.kind,path,name:WA.img.name||'screenshot',by:me.id,at:nowISO(),purpose:'report'})}
+ return evs}
+async function waDraft(i){try{const r=WA.res,h=i>=0?r.hazards[i]:null;const evidence=await waEv();
+ startNew({channel:'WhatsApp',desc:WA.text.slice(0,500),original:r.arabic?WA.text:'',cat:h?h.c.id:'',sub:h?h.s.n:'',evidence,
+ floor:(r.loc.find(x=>/floor|level/i.test(x))||'').replace(/\D*/,''),room:r.loc.find(x=>/room|rm/i.test(x))||''});
+ setTimeout(()=>alert('Draft created. Review and correct every field before saving.'),50)}catch(e){alert(e.message||e)}}
+async function waLink(){if(!wa_link.value)return alert('Choose a complaint.');
+ try{const c=db.complaints.find(x=>x.id===wa_link.value);const evs=await waEv();evs.forEach(e=>{e.purpose='investigation';c.evidence.push(e)});
+  audit('EVIDENCE',c.ref,'WhatsApp evidence linked');save();WA={text:'',img:null,res:null};go('detail',{id:c.id})}catch(e){alert(e.message||e)}}
+
+/* ===== Reports ===== */
+let RP={period:'monthly',anchor:localDT().slice(0,10)};
+function range(){const a=new Date(RP.anchor+'T00:00:00');let s=new Date(a),e=new Date(a);
+ if(RP.period==='weekly'){const d=(a.getDay()+6)%7;s.setDate(a.getDate()-d);e=new Date(s);e.setDate(s.getDate()+6)}
+ else if(RP.period==='monthly'){s=new Date(a.getFullYear(),a.getMonth(),1);e=new Date(a.getFullYear(),a.getMonth()+1,0)}
+ else if(RP.period==='quarterly'){const q=Math.floor(a.getMonth()/3);s=new Date(a.getFullYear(),q*3,1);e=new Date(a.getFullYear(),q*3+3,0)}
+ else if(RP.period==='yearly'){s=new Date(a.getFullYear(),0,1);e=new Date(a.getFullYear(),11,31)}
+ e.setHours(23,59,59,999);return [s,e]}
+function repList(){const [s,e]=range();return db.complaints.filter(c=>{const d=new Date(c.submittedAt);return d>=s&&d<=e})}
+function reportsView(){const [s,e]=range(),L=repList(),conf=L.filter(c=>CONFIRMED.includes(c.classification)),uv=L.filter(c=>!CONFIRMED.includes(c.classification)&&c.classification!=='Not substantiated'),ns=L.filter(c=>c.classification==='Not substantiated');
+ return `<h2>Reports</h2><div class="card noprint"><div class="row"><div><label>Period</label><select onchange="RP.period=this.value;render()">${['daily','weekly','monthly','quarterly','yearly'].map(p=>`<option ${RP.period===p?'selected':''}>${p}</option>`).join('')}</select></div>
+ <div><label>Reference date</label><input type="date" value="${RP.anchor}" onchange="RP.anchor=this.value;render()"></div></div>
+ <p><button onclick="window.print()">🖨 Print / Save as PDF</button> <button class="sec" onclick="exportCSV()">⬇ Spreadsheet (CSV)</button></p></div>
+ <div class="card"><h2 style="margin:0">Staff Complaints & Safety Deficiencies Report</h2><div class="mut">${RP.period.toUpperCase()} · ${fmtD(s)} to ${fmtD(e)} · Generated ${fmt(nowISO())} by ${esc(me.name)}</div>
+ <h3 style="margin-top:12px">Summary</h3><table><tr><th>Complaints received</th><td>${L.length}</td><th>Closed</th><td>${L.filter(c=>c.status==='Closed').length}</td></tr>
+ <tr><th>Confirmed findings</th><td>${conf.length}</td><th>Unverified / under assessment</th><td>${uv.length}</td></tr><tr><th>Not substantiated</th><td>${ns.length}</td><th>Overdue now</th><td>${L.filter(isOverdue).length}</td></tr>
+ <tr><th>Critical/High unresolved</th><td>${L.filter(c=>isOpen(c)&&['critical','high'].includes(c.priority)).length}</td><th>Reopened</th><td>${L.filter(c=>c.history.some(h=>h.to==='Reopened')).length}</td></tr>
+ <tr><th>Avg first response</th><td>${dur(avg(L.map(firstResp)))}</td><th>Avg resolution</th><td>${dur(avg(L.map(resTime)))}</td></tr></table>
+ <div class="mut">Confirmed = classified by a Safety Officer as confirmed deficiency, incident/near miss or urgent hazard. All other items are reported allegations and must not be read as violations.</div>
+ <h3 style="margin-top:12px">By category</h3>${bars(countBy(L,c=>catOf(c.cat).name))}<h3>By priority</h3>${bars(countBy(L,c=>c.priority))}<h3>By reporting department</h3>${bars(countBy(L,c=>c.dept))}<h3>By location</h3>${bars(countBy(L,c=>loc(c)))}
+ <h3 style="margin-top:12px">Complaint register</h3><div class="scroll"><table><tr><th>Ref</th><th>Date</th><th>Category / sub</th><th>Location</th><th>Priority</th><th>Classification</th><th>Status</th><th>Officer</th><th>Target</th></tr>
+ ${L.map(c=>`<tr><td>${c.ref}</td><td>${fmtD(c.submittedAt)}</td><td>${esc(catOf(c.cat).name)}<br>${esc(c.sub)}</td><td>${esc(loc(c))}</td><td>${c.priority}</td><td>${esc(c.classification)}</td><td>${esc(c.status)}${isOverdue(c)?' (OVERDUE)':''}</td><td>${esc(uname(c.officer))}</td><td>${fmtD(c.target)}</td></tr>`).join('')||'<tr><td colspan="9">No records in period</td></tr>'}</table></div></div>`}
+function exportCSV(){const L=repList();const cols=['Ref','Submitted','Received','Event time','Reporter','Reporting dept','Channel','Building','Floor','Unit','Room','Category','Subcategory','Description (English)','Classification','Priority','Status','Officer','Responsible dept','Corrective action','Target date','Overdue','Recurring','Entered by','Closed at'];
+ const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+ const rows=L.map(c=>{const cl=[...c.history].reverse().find(h=>h.to==='Closed');return [c.ref,c.submittedAt,c.receivedAt,c.eventAt,c.reporter,c.dept,c.channel,c.building,c.floor,c.unit,c.room,catOf(c.cat).name,c.sub,c.desc,c.classification,c.priority,c.status,uname(c.officer),c.respDept,c.corrective,c.target,isOverdue(c)?'Yes':'No',c.recurring,uname(c.enteredBy),c.status==='Closed'&&cl?cl.at:''].map(q).join(',')});
+ const blob=new Blob(['\ufeff'+cols.map(q).join(',')+'\n'+rows.join('\n')],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Complaints_${RP.period}_${RP.anchor}.csv`;a.click();audit('EXPORT','',RP.period+' CSV');save()}
+
+/* ===== Admin ===== */
+function adminView(){if(!isAdmin())return '<div class="warn">Administrator only.</div>';
+ return `<h2>Administration</h2>
+ <div class="card"><h3>Authorized users (exactly five)</h3>${db.users.map(u=>`<div class="item" style="cursor:default"><b>${esc(u.name)}</b> ${u.active?'':'<span class="badge gray">deactivated</span>'}<div class="mut">${esc(u.email||'')}</div>
+ <div class="row"><select onchange="setRole('${u.id}',this.value)" ${u.id===me.id?'disabled':''}>${['admin','officer','viewer'].map(r=>`<option ${u.role===r?'selected':''}>${r}</option>`).join('')}</select>
+ ${u.id!==me.id?`<button class="${u.active?'dan':'sec'} sm" onclick="togActive('${u.id}')">${u.active?'Deactivate':'Activate'}</button>`:''}</div></div>`).join('')}
+ <div class="mut">Accounts exist only for the five emails on the database allowlist. New accounts and password resets are done in the Supabase dashboard (Authentication → Users); there is no self-registration.</div></div>
+ <div class="card"><h3>Categories & default risk</h3>${db.cfg.cats.map((c,ci)=>`<details><summary>${c.icon} ${esc(c.name)} (${c.subs.length})</summary>${c.subs.map((s,si)=>`<div class="row" style="align-items:center;margin:3px 0"><div style="flex:3">${esc(s.n)}</div><select style="flex:1" onchange="setSubRisk(${ci},${si},this.value)">${PR.map(p=>`<option ${s.r===p?'selected':''}>${p}</option>`).join('')}</select></div>`).join('')}
+ <div class="row"><input id="ns${ci}" placeholder="New subcategory"><button class="sec sm" onclick="addSub(${ci})">Add</button></div></details>`).join('')}
+ <div class="row" style="margin-top:8px"><input id="nc_n" placeholder="New category name"><input id="nc_i" placeholder="Icon (emoji)" style="max-width:110px"><button class="sec sm" onclick="addCat()">Add category</button></div></div>
+ <div class="card"><h3>Urgent keywords</h3><textarea id="kw">${esc(db.cfg.keywords.join(', '))}</textarea><h3 style="margin-top:8px">Departments</h3><textarea id="dp">${esc(db.cfg.depts.join(', '))}</textarea>
+ <h3 style="margin-top:8px">Target days by priority</h3><div class="row">${PR.map(p=>`<div><label>${p}</label><input type="number" id="sla_${p}" value="${db.cfg.sla[p]}"></div>`).join('')}</div><p><button onclick="saveCfg()">Save settings</button></p></div>
+ <div class="card"><h3>Backup</h3><p><button class="sec" onclick="backup()">⬇ Export full backup (JSON)</button></p>
+ <div class="mut">Data lives in your Supabase project; evidence files are in its private "evidence" bucket (export those from the Supabase dashboard). Export a JSON backup regularly - the free plan has no downloadable backups.</div></div>
+ <div class="card"><h3>Audit log (latest 100)</h3><div class="scroll"><table><tr><th>When</th><th>User</th><th>Action</th><th>Ref</th><th>Detail</th></tr>${db.audit.slice(-100).reverse().map(a=>`<tr><td>${fmt(a.at)}</td><td>${esc(a.byName)}</td><td>${esc(a.action)}</td><td>${esc(a.ref)}</td><td>${esc(a.detail)}</td></tr>`).join('')}</table></div></div>`}
+async function setRole(id,r){const{error}=await sb.from('profiles').update({role:r}).eq('id',id);if(error){alert(error.message);render();return}
+ db.users.find(u=>u.id===id).role=r;LASTSIG='';audit('ROLE',uname(id),r);save();render()}
+async function togActive(id){const u=db.users.find(x=>x.id===id);const{error}=await sb.from('profiles').update({active:!u.active}).eq('id',id);if(error){alert(error.message);render();return}
+ u.active=!u.active;LASTSIG='';audit(u.active?'ACTIVATE':'DEACTIVATE',u.name);save();render()}
+function setSubRisk(ci,si,v){db.cfg.cats[ci].subs[si].r=v;audit('CONFIG','',`Risk ${db.cfg.cats[ci].subs[si].n} = ${v}`);save()}
+function addSub(ci){const el=document.getElementById('ns'+ci);if(!el.value.trim())return;db.cfg.cats[ci].subs.push({n:el.value.trim(),r:'medium',u:false});audit('CONFIG','','Added sub '+el.value);save();render()}
+function addCat(){if(!nc_n.value.trim())return;db.cfg.cats.splice(db.cfg.cats.length-1,0,{id:'c'+uid().slice(0,8),name:nc_n.value.trim(),icon:nc_i.value||'⚠️',desc:'',subs:[{n:'General',r:'medium',u:false}]});audit('CONFIG','','Added category '+nc_n.value);save();render()}
+function saveCfg(){db.cfg.keywords=kw.value.split(',').map(x=>x.trim()).filter(Boolean);db.cfg.depts=dp.value.split(',').map(x=>x.trim()).filter(Boolean);PR.forEach(p=>db.cfg.sla[p]=+document.getElementById('sla_'+p).value||1);audit('CONFIG','','Settings saved');save();alert('Saved.')}
+function backup(){const o={exportedAt:nowISO(),by:me.name,config:db.cfg,complaints:db.complaints.map(strip),audit:db.audit.map(a=>({at:a.at,byName:a.byName,action:a.action,ref:a.ref,detail:a.detail}))};
+ const blob=new Blob([JSON.stringify(o,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='complaints_backup_'+localDT().slice(0,10)+'.json';a.click();audit('BACKUP');save()}
+
+/* ===== Boot ===== */
+window.addEventListener('online',()=>{if(me)pollOnce()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&me)pollOnce()});
+async function boot(){const c=backendCfg();
+ if(c&&initClient(c)){try{const{data}=await sb.auth.getSession();if(data&&data.session){const e=await startSession(data.session.user);if(e)loginMsg=e}}catch(x){loginMsg='Cannot reach the database: '+(x.message||x)}}
+ render()}
+boot();
+</script></body></html>
